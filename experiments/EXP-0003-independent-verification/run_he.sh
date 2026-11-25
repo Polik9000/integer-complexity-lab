@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # EXP-0003 step 3: run He's single-target solver (GPL, not vendored) on 2^k - 1.
-# Usage: run_he.sh WORKDIR [K0] [K1] [MODE]
+# Usage: run_he.sh WORKDIR [K0] [K1] [MODE]   or   run_he.sh WORKDIR dump OUTFILE
 #   MODE=upstream (default): upstream single.cpp, unmodified.
 #   MODE=naive: a *copy* of single.cpp with he_naive_lb.patch applied (Selfridge lower bound only).
 # The upstream checkout is never modified; the script aborts if its SHA-256 differs.
@@ -23,5 +23,8 @@ esac
 cp "$HERE/he_driver.cpp" "$BUILD/driver.cpp"
 g++ -O2 -fpermissive -w "$BUILD/driver.cpp" -o "he_driver_$MODE"
 echo "$EXPECTED_SHA  $UP/single.cpp" | sha256sum -c --quiet -   # upstream still untouched
+if [ "$K0" = dump ]; then   # run_he.sh WORKDIR dump OUTFILE: write He's base table (n <= 10^8)
+  "./he_driver_$MODE" dump "$K1" >/dev/null 2>&1; sha256sum "$K1"; exit 0
+fi
 "./he_driver_$MODE" "$K0" "$K1" 2>/dev/null | grep '^{' | tee "results_he_$MODE.jsonl"
 python3 -I "$HERE/compare.py" "results_he_$MODE.jsonl"

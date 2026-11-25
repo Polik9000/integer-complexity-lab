@@ -116,7 +116,10 @@ def min_ones_lower(m: int) -> int:
 
 
 class ExactSearch:
-    def __init__(self, table: Sequence[int], T: int | None = None) -> None:
+    def __init__(self, table: Sequence[int], T: int | None = None, emit=None) -> None:
+        """``emit``: optional object with ``claim(m, j)``, called whenever a lower bound
+        ||m|| > j is established (used to write certificates; see algorithms/certificate_emit.py)."""
+        self.emit = emit
         self.c = table
         self.T = len(table) - 1 if T is None else T
         self.exact: dict[int, int] = {}
@@ -172,8 +175,12 @@ class ExactSearch:
                     best = cd + ce
         if best <= k:
             self.exact[m] = best
+            if self.emit is not None:
+                self.emit.claim(m, best - 1)
         else:
             self.gt[m] = max(self.gt.get(m, -1), k)
+            if self.emit is not None:
+                self.emit.claim(m, k)
         return best
 
     def complexity(self, n: int, upper: int) -> int:

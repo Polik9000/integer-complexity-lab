@@ -113,3 +113,20 @@ The lead asked for four fixes, then for the certificate work. Done:
 
 Decision recorded (lead): **don't extend the table to larger k** until the certificate architecture is specified.
 Next: specify the certificate format and an independently implemented checker for 2^61 − 1.
+
+## 2026-11-25 (afternoon, cont.): certificate architecture and the first lower-bound certificate (Claude Code)
+
+The lead asked us to prioritize a certificate-producing search with an independent checker, and to keep larger k
+on hold until the architecture is specified.
+- **Spec:** `research/2026-11-25-certificate-architecture.md`. The claims are G(m, j) "‖m‖ > j", each with its full
+  factorization and Pratt primality records. The checker recomputes every split itself, so no hints are needed (Theorem C).
+  Trust base: Lemmas 1–2, Theorem C, the checker, and the table as a *lower* bound.
+- **Table cross-check:** our C table and He's independent table (Fuller's algorithm, dumped via our driver) are
+  byte-identical for n ≤ 10⁸ (SHA-256 34dbc4da…).
+- **Implementation:** `certificates/lower/check_lower.py` (169 lines, stdlib only) and `algorithms/certificate_emit.py`.
+  13 tests, including mutation tests.
+- **Result:** the certificate for ‖2^61 − 1‖ > 126 has 1.12M records and is 13 MB gzip. It took 220 s to generate. The checker
+  **accepted** it in 56 s. The same certificate with its root raised to > 127 is rejected.
+- Status of R-0007: `COMPUTATIONALLY VERIFIED` with a checkable certificate. It is still **not `PROVEN`**, because there has been no
+  external review of the checker and the proofs (RP-0002 is next) and no Lean version.
+- We did not run anything for larger k.

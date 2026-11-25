@@ -16,10 +16,58 @@
 | Step | Work | State |
 |------|------|-------|
 | 1 | Our own second implementation (C/C++, different structure) | planned |
-| 2 | Certificate-emitting search plus an independent checker | planned |
+| **2** | **Certificate-emitting search plus an independent checker** | **done for k = 61 (below)** |
 | **3** | **Run He's solver (`hqztrue/integer_complexity`, `single.cpp`, `calc_single`) on 2^k − 1, k ≤ 61** | **done (this record)** |
 | 5 | Review package RP-0002 | planned |
 | 6 | Optional Lean checker | planned |
+
+## Step 2: lower-bound certificate for ‖2^61 − 1‖ > 126
+
+**Spec:** [`research/2026-11-25-certificate-architecture.md`](../../research/2026-11-25-certificate-architecture.md).
+Here is a summary. A certificate is a stream of claims "‖m‖ > j", each with the full factorization of m. Every prime
+p ≥ 2^16 gets a Pratt certificate. The checker [`certificates/lower/check_lower.py`](../../certificates/lower/check_lower.py)
+(stdlib only, no imports from `algorithms/`) recomputes **every** split of m itself: all sums up to the
+Selfridge cut-off, and all divisor pairs from the verified factorization. It requires each split to be refuted
+by table values, by Selfridge's λ or by an earlier accepted claim. The search program is **not** in the trust base.
+A bug in the search can only produce a certificate that fails to check.
+
+**Table cross-check (new).** The certificate uses T = 10⁸. Our C table and He's independent table (Fuller's
+algorithm, dumped with the driver's new `dump` mode; the upstream source is unchanged and hash-asserted) are
+**byte-identical for all n ≤ 10⁸**. Both have SHA-256 `34dbc4da…461b38f6`. So every table value the checker uses is confirmed by
+two independent implementations. The checker only needs the table as a *lower* bound.
+
+**Checker validation:** `tests/test_certificate_lower.py` (13 tests).
+- Positive: 120 random n ≤ 3·10⁵ with T = 2000, 2^k − 1 for k ≤ 26 against Iraids et al., and 2^40 − 1 with Pratt records.
+- Mutations, all rejected: a raised root claim; a deleted claim; a reordered claim; wrong or duplicated factors; a composite or a
+  wrong-order witness presented as prime; a tampered table (SHA mismatch); a truncated file; a dropped root; records after the end.
+- Raising each of the first 60 intermediate claims one at a time: each is either rejected or still true (checked against the full table).
+
+**Results** (same environment as below, single core):
+
+| Item | Value |
+|------|-------|
+| Generation (`gen_cert.py`, T = 10⁸) | 220 s CPU, 158 MB peak RSS, 1,001,675 search nodes |
+| Certificate | 1,121,887 records (120,212 Pratt prime records; the rest are claims). 82.75 MB raw, **13.17 MB gzip** |
+| SHA-256 (gzip file) | `4f286d1546ce3d64c988a740dc8542e4a419822a2cd3033e4fd6d65746135752` |
+| SHA-256 (uncompressed) | `b6d16f8f7fa15827ca8901ec67ffde804d62eae2c40bfceb4e691099d64d5b33` |
+| Checking (`check_lower.py`) | **ACCEPTED: ‖2305843009213693951‖ > 126**, 56 s CPU, checked against He's table file |
+| Mutation on the real certificate | root raised to "> 127" is **REJECTED** at the split 1 + (N − 1), as it must be: ‖N − 1‖ ≤ 2 + ‖2^60 − 1‖ = 126 |
+
+The certificate is not committed. A copy is in the project files (`integer-complexity-lab/certificates/M61-LB126-cert-v1.jsonl.gz`),
+and it can be regenerated with:
+
+```bash
+bash experiments/EXP-0003-independent-verification/run_cert.sh /tmp/exp3cert
+```
+
+**What the certificate shows.** ‖2^61 − 1‖ > 126 holds *provided that* (i) the checker correctly implements §5 of
+the spec, (ii) the table is a valid lower bound for n ≤ 10⁸, and (iii) Lemmas 1–2 and Theorem C hold. The certificate
+expression for 127 then gives **‖2^61 − 1‖ = 127**. The status is `COMPUTATIONALLY VERIFIED` with an independently
+checkable certificate. It is **not `PROVEN`**: the checker, the spec and the proofs have not had an external
+review (RP-0002), and nothing is formalized in Lean yet.
+
+**Independence caveat.** The checker was written by the same agent (Claude) as the search, though from the spec and
+without shared code. That is why it is small (~170 lines) and why it goes into RP-0002 for human and ChatGPT review.
 
 ## Step 3: method
 

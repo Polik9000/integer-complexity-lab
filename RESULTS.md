@@ -4,7 +4,7 @@ Current state of knowledge. Every row has an evidence status as defined in
 [`CLAUDE.md` §4](CLAUDE.md#4-evidence-statuses). Superseded rows are moved to the
 "History" section, never deleted.
 
-Last updated: 2026-11-25 (third update: EXP-0003 step 3).
+Last updated: 2026-11-25 (fourth update: EXP-0003 step 2, certificate).
 
 ## R-0001 … benchmark N = 2^61 − 1 = 2305843009213693951
 
@@ -15,7 +15,7 @@ Last updated: 2026-11-25 (third update: EXP-0003 step 3).
 | R-0003 | ‖N‖ ≤ 127 | `COMPUTATIONALLY VERIFIED` + `FORMALLY VERIFIED` | Two independent 127-ones expressions: [third-party board submission](certificates/m61/M61-UB127-BOARD-PR4.json) and [our own search](certificates/m61/M61-UB127-ICL-PEEL.json) ([EXP-0001](experiments/EXP-0001-m61-benchmark-reproduction/)). Both are kernel-checked in [`lean/IntegerComplexity/Certificates/M61.lean`](lean/IntegerComplexity/Certificates/M61.lean); `#print axioms` reports no axioms. |
 | R-0004 | ‖N‖ = ? | superseded by R-0007 (see History) | |
 | R-0006 | ‖N‖ ≥ 117 | `PROVEN` (relative to `LITERATURE`: Altman–Zelinsky 2012, Thm 1.6) | N isn't one of the 7 families with defect < 1, so ‖N‖ > 3 log₃ N + 1 = 116.46. Proof: [`research/lit-AltmanZelinsky2012.md`](research/lit-AltmanZelinsky2012.md). Thm 1.6 itself was cross-checked against our exact table for n ≤ 4·10⁸ (exactly the 420 predicted numbers). |
-| R-0007 | **‖N‖ = 127** (so the 127-ones expressions are optimal) | `COMPUTATIONALLY VERIFIED` (two independent implementations); certificate and external review pending | (1) Our exhaustive budgeted search. Its correctness rests on a conditional theorem with a written proof that has been self-checked but not independently reviewed ([`research/proof-exact-search.md`](research/proof-exact-search.md)): [EXP-0002](experiments/EXP-0002-exact-mersenne-pilot/), 117 s. (2) Q. He's independent C++ solver (no shared code or data): [EXP-0003](experiments/EXP-0003-independent-verification/), 2.6 s. It gives the same values with its defect-based pruning switched off (Selfridge bound only), 3.6 s. Both use the same mathematical method (exhaustive split search with Selfridge pruning). A checkable certificate (EXP-0003 step 2) and RP-0002 are still to do. Quote it as "computationally verified by two independent programs", not as a proof. |
+| R-0007 | **‖N‖ = 127** (so the 127-ones expressions are optimal) | `COMPUTATIONALLY VERIFIED`: two independent implementations **and** an independently checked lower-bound certificate. **Not `PROVEN`**: the checker, spec and proofs have not been externally reviewed (RP-0002), and nothing is in Lean yet. | (1) Our exhaustive budgeted search. Its correctness rests on a conditional theorem with a written proof that has been self-checked but not independently reviewed ([`research/proof-exact-search.md`](research/proof-exact-search.md)): [EXP-0002](experiments/EXP-0002-exact-mersenne-pilot/), 117 s. (2) Q. He's independent C++ solver (no shared code or data): [EXP-0003](experiments/EXP-0003-independent-verification/), 2.6 s. It gives the same values with its defect-based pruning switched off (Selfridge bound only), 3.6 s. Both use the same mathematical method (exhaustive split search with Selfridge pruning). (3) A lower-bound certificate for ‖N‖ > 126 (1.12M records, 13 MB gzip) is accepted by a separate checker ([`certificates/lower/check_lower.py`](certificates/lower/check_lower.py), [spec](research/2026-11-25-certificate-architecture.md)). The checker does not trust the search; it trusts only Lemmas 1–2, Theorem C, its own ~170 lines, and the table for n ≤ 10⁸, which is byte-identical between our implementation and He's ([EXP-0003](experiments/EXP-0003-independent-verification/) step 2). Quote it as "computationally verified, with a checkable certificate", not as a proof. |
 | R-0005 | A simple "peel" search (n = d·m + r, d ≤ 100, r ≤ 1, exact table to 4·10⁸) reaches 127 in ≈5 s; the variants tried (r ≤ 8, d ≤ 400) found nothing below 127. | `OBSERVATION` | [EXP-0001](experiments/EXP-0001-m61-benchmark-reproduction/). Says nothing about whether < 127 exists. |
 
 ## R-0100 … infrastructure validation (exact small values)
@@ -34,6 +34,8 @@ Last updated: 2026-11-25 (third update: EXP-0003 step 3).
 | R-0202 | Iraids' bounds A(k+1) ≤ A(k) + 1 and A(k) ≤ ⌊log₂ k⌋ + H(k) − 3 hold for k ≤ 61; the second is tight at k = 32, 33, 34 | `OBSERVATION` (on R-0201 data) | EXP-0002 |
 
 ## History
+
+- 2026-11-25: R-0007 gains an independently checked lower-bound certificate (EXP-0003 step 2). The status stays `COMPUTATIONALLY VERIFIED`, not `PROVEN`.
 
 - 2026-11-25: R-0007 and R-0201 lose the "provisional: one implementation" tag after the independent replication in EXP-0003 (He's code, 60/60 values agree).
 

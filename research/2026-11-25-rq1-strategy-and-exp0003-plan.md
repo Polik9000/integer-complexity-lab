@@ -49,7 +49,7 @@ S3 for the write-up. S4 only if needed.
 | Step | Work | CPU | RAM | Wall time | Risk |
 |------|------|-----|-----|-----------|------|
 | 1 | C/C++ second implementation, tests against the Python one for k ≤ 61 and random n | < 10 min | < 2 GB | ~1 day of work | The two implementations share design assumptions. Mitigated by S2. |
-| 2 | Certificate output in the Python search, plus an independent Python checker; run for k = 61 | ~5–10 min | ~2–4 GB | ~1 day | Certificate size (est. 0.1–0.5 GB). Store it compressed, outside git, with SHA-256 in the README. |
+| 2 | Certificate output in the Python search, plus an independent Python checker; run for k = 61 (**done 2026-11-25**: 220 s generation, 56 s check, 13 MB gzip; see EXP-0003) | ~5–10 min | ~2–4 GB | ~1 day | Certificate size (est. 0.1–0.5 GB). Store it compressed, outside git, with SHA-256 in the README. |
 | 3 | Run He's code for k ≤ 61 (**approved and done 2026-11-25**: 60/60 agree, k = 61 in 2.6 s, see EXP-0003) | ~5 min | ≤ 4 GB (table 10⁸ bytes + hash maps) | 1 h | Windows-specific code (`%I64d`, `.bat`), so it needs a small Linux driver. GPL, so we don't vendor it. |
 | 4 | AZ2012 Thm 1.6 and Iraids Table 3 regression tests (done) | — | — | — | — |
 | 5 | Review package RP-0002: claim, proof note, certificates | — | — | ½ day | — |

@@ -1,8 +1,8 @@
 # EXP-0004 D. Adversarial review
 
 Written 2026-11-25 by Claude Code. Sources: the independent **adversarial reviewer** (a subagent told to assume the claim
-is wrong and to break the checker; its run was interrupted once by a usage limit and then resumed), plus the primary
-agent's own attacks. The reviewer's scripts stayed in session scratch space; the attacks that matter are reproduced by
+is wrong and to break the checker; its run was interrupted once by a usage limit, then resumed and completed; its final
+report agrees with everything below), plus the primary agent's own attacks. The reviewer's scripts stayed in session scratch space; the attacks that matter are reproduced by
 committed tools and tests.
 
 ## 1. Summary
@@ -81,3 +81,8 @@ target, claim and table SHA given on the command line.
 2. `check_lower.py` remains unfixed on this branch, by instruction. The F1 hole stays documented by a strict xfail test.
 3. Python, `json` and `gzip` are trusted. A Lean-checked run would remove this (roadmap M4–M6).
 4. A kernel-only Lean run of the full certificate is estimated, not measured.
+5. The reviewer did not try to forge a false claim about N itself with the float trick. That would need a
+   float-representable number above 2^53 in the derivation tree. It is irrelevant to our certificates, which contain no
+   floats, but it is the reason F1 must be fixed before `check_lower.py` is used on third-party certificates.
+6. Independent table comparison covers v ≤ 2·10⁶ only. Above that, only invariants and He's byte comparison (EXP-0003, not
+   re-run) support the table. This matters only for the EXP-0003 certificate, not the table-free one.

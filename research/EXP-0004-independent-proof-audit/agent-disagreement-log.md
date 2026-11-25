@@ -9,7 +9,7 @@ Six agents took part, all instances of Claude (the same model family). That is t
 | Primary (Claude Code, this thread) | Run the audit, write a second checker, build the table-free certificate, write the deliverables | — | — |
 | Mathematical proof auditor | Reconstruct the proof from the notes; find gaps and counterexamples | No | Finished |
 | Implementation auditor | Line-by-line code review, reproduction, statistics, mutation tests | No | Finished |
-| Adversarial reviewer | Assume the claim is wrong; craft accepted false certificates; attack the real one | No | Interrupted once by a usage limit, then resumed. Its own report text is summarized from its output files and partial results. |
+| Adversarial reviewer | Assume the claim is wrong; craft accepted false certificates; attack the real one | No | Interrupted once by a usage limit, then resumed and finished. Its final report matches the summary drawn from its output files. |
 | Lean formalization specialist | Inventory what is kernel-checked; design the route; build a proof of concept; benchmark | No, until it resumed after the usage limit. On resuming it was told one fact: that a table-free certificate exists, with its size. | Finished |
 | Literature specialist | Primary sources, novelty | No | Finished |
 

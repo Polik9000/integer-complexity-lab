@@ -115,10 +115,7 @@ of hints**: a wrong hint would only make the certificate fail to check.
 | Root raised to > 127 | REJECTED at the split 1 + 2305843009213693950 |
 
 The certificate is not committed (31 MB). A copy is in the project files as
-`integer-complexity-lab/certificates/M61-LB126-tablefree-v1.jsonl.gz`. Note that its header records the generator commit as
-`b7d85c9`, the branch base. The generator scripts were in the working tree, uncommitted, when the certificate was made, so
-regeneration from the EXP-0004 commit gives a body that should be byte-identical with a different header. That has not been
-re-tested. Regenerate and check it with:
+`integer-complexity-lab/certificates/M61-LB126-tablefree-v1.jsonl.gz`. Its header records the generator commit as `b7d85c9` (the branch base; the scripts were not yet committed). **Reproduced from the EXP-0004 commit `2ba7a9e`** with `run_tablefree.sh`: the body (all lines after the header) is byte-identical, and both checkers accept it (9 min 52 s in total, 290 s of it generation). Regenerate and check it with:
 
 ```bash
 bash research/EXP-0004-independent-proof-audit/tools/run_tablefree.sh /tmp/exp4

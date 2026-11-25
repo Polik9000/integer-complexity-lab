@@ -7,7 +7,7 @@ Python package (`import algorithms...`, run from the repository root) plus C sou
 | `expression.py` | Strict parser/evaluator for `1 + * ( )` expressions (no eval); Lean export |
 | `exact_table.py` | Exact ‖n‖ for small n (pure Python), reading C tables, optimal-expression reconstruction |
 | `c/complexity_table.c` | Exact ‖n‖ for all n ≤ N (C; 4·10⁸ in ~35 s, 1 byte per n) |
-| `exact_single.py` | Exact ‖n‖ for one large n (budgeted exhaustive search; proof in research/proof-exact-search.md) |
+| `exact_single.py` | Exact ‖n‖ for one large n (budgeted exhaustive search; conditional correctness argument in research/proof-exact-search.md) |
 | `upper_bound_search.py` | Heuristic upper bounds for huge n ("peel" search), emits certificates |
 
 Correctness argument for the table pruning: an expression with k ones has value ≤ 3^{k/3}, so

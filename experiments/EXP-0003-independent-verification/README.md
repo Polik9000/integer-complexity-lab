@@ -44,19 +44,38 @@ It uses a precomputed table of ‖m‖ for m ≤ 10⁸ (Fuller's all-n algorithm
 | Lower-bound pruning | Selfridge only | Selfridge **plus** a hard-coded list of defect < 1 numbers: numbers not in the list get a bound one higher |
 
 The two share the **mathematical method**: exhaustive split search with Selfridge-type pruning.
-A flaw in that method would affect both. The method is covered by our written proof
-(`research/proof-exact-search.md`) and by He's paper. The two share **no code and no data**.
+A flaw in that method would affect both. Our written proof covers the method
+(`research/proof-exact-search.md`; a conditional theorem, self-checked, not yet independently reviewed).
+He's paper also argues for it, but we have not checked his argument line by line for this finite use. The two share
+**no code and no data**.
 
 One caveat about He's extra pruning: it is valid only if the hard-coded list contains every number
 of defect < 1 (Altman–Zelinsky 2012, Thm 1.6). If the list missed one, He's code could over-prune and
-report a value that is **too large**, never too small. Our run uses only Selfridge, and every value agrees,
-so this caveat does not affect the comparison.
+report a value that is **too large**, never too small. Our search uses only Selfridge, and every value agrees,
+so this caveat does not affect the comparison. The sensitivity run below also removes it directly.
+
+## Sensitivity run: He's code with the defect pruning switched off (lead's request, 2026-11-25)
+
+[`he_naive_lb.patch`](he_naive_lb.patch) (SHA-256 `70c58de2…a6aea651`) changes **one line** of a *copy*
+of `single.cpp`. It enables He's own commented-out `return complexity_LB_naive(n);` in `complexity_LB`.
+After the patch every pruning and the starting depth use only the Selfridge bound λ(n) = min{i : E(i) ≥ n}.
+The hard-coded defect < 1 list (`M_lb`) is then never read. We checked that `complexity_LB` is the only reader of `M_lb`.
+The upstream checkout is not modified: `run_he.sh` copies it to `build-naive/`, patches the copy, and
+re-asserts the upstream SHA-256 after the build.
+
+One more dependency remains in both modes, and we did not change it: the base-table routine (`calc_all`, credited to Fuller) sizes a
+buffer with He's upper bound ‖n‖ ≤ 4.125·log₃ n (`complexity_UB`). It affects only the table for n ≤ 10⁸, and
+it is cross-checked by the agreement with our independently built table on every value we compare.
 
 ## Reproduce
 
 ```bash
-bash experiments/EXP-0003-independent-verification/run_he.sh /tmp/exp3 2 61
+bash experiments/EXP-0003-independent-verification/run_he.sh /tmp/exp3 2 61            # upstream, unmodified
+bash experiments/EXP-0003-independent-verification/run_he.sh /tmp/exp3 2 61 naive      # sensitivity run
 ```
+
+The script **aborts (exit 2)** if the upstream `single.cpp` does not match the SHA-256 of the inspected
+version (`8d35c1d6…fbeb87`). We tested this by appending a line to a copy: it aborted.
 
 The script clones the upstream repo and checks out `742e8c5`. It then compiles with g++ -O2, runs, and
 compares the output with EXP-0002 and with Iraids et al. 2012, Table 3. The exit code is non-zero on any mismatch.
@@ -71,9 +90,12 @@ Intel Xeon @ 2.10 GHz (container, 4 vCPU, 1 core used), 15 GB RAM, Ubuntu 24.04,
 |-----|---|-----------|--------|
 | full | 2..61 | 17.3 s in total, about 10 s of it initialization (the 10⁸ table); k = 61 itself took 2.6 s | [`results_he_k2-61.jsonl`](results_he_k2-61.jsonl), SHA-256 `25dbb402…dec6095` |
 | script check | 55..61 | 22.9 s, including the compile | identical values |
+| **naive (Selfridge only)** | 2..61 | 26.9 s in total, including the compile; k = 61 itself took 3.58 s | [`results_he_naive_k2-61.jsonl`](results_he_naive_k2-61.jsonl), SHA-256 `cdada982…b39fd681e` |
 
 `compare.py` output: **60 values. All 42 overlaps with EXP-0002 (k = 20..61) agree, and all 38 overlaps
 with Iraids Table 3 (k = 2..39) agree. There are 0 mismatches.** In particular, He's code gives ‖2^61 − 1‖ = 127.
+The **naive** run gives the same 60 values. 0 differ from the upstream run, so the result does not depend on He's
+defect list. Search time rises by about 50% (k = 60: 1.52 → 2.53 s; k = 61: 2.61 → 3.58 s).
 
 He's code is ≈ 45× faster than our Python search on k = 61 (2.6 s vs 117 s). This changes the
 cost model in the plan: k ≈ 64–70 is seconds to minutes, not minutes to hours.
@@ -83,6 +105,7 @@ cost model in the plan: k ≈ 64–70 is seconds to minutes, not minutes to hour
 - ‖2^k − 1‖ for 40 ≤ k ≤ 61 (R-0201), including **‖2^61 − 1‖ = 127** (R-0007): `COMPUTATIONALLY
   VERIFIED` by **two independent implementations**, which share no code or data.
 - He's implementation reproduces Iraids et al. Table 3 exactly: `LITERATURE + COMPUTATIONALLY VERIFIED`.
+- Sensitivity: the values do not depend on He's defect < 1 pruning (`COMPUTATIONALLY VERIFIED`, naive run).
 
 **Not shown.**
 - The value is not checkable without trusting one of the two programs. That needs the certificate in step 2.
@@ -92,4 +115,4 @@ cost model in the plan: k ≈ 64–70 is seconds to minutes, not minutes to hour
 ## Follow-ups
 
 - Steps 1, 2, 5 and 6 above.
-- k = 62..64 with both implementations is cheap. ‖2^64 − 1‖ tests Iraids' Observation 2, which predicts 132.
+- k = 62..64 is cheap, but it is **on hold** at the lead's request (2026-11-25) until the certificate architecture is specified.

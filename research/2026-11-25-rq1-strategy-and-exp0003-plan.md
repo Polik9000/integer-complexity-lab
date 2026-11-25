@@ -9,7 +9,7 @@ human-readable proof via Altman–Zelinsky Thm 1.6. The remaining job is to turn
 
 | Question | Answer / plan |
 |----------|---------------|
-| Is the algorithm correct? | Written proof: `research/proof-exact-search.md`. External review: RP-0002 to ChatGPT, and possibly a human expert (needs the lead's approval). |
+| Is the algorithm correct? | Written conditional proof, self-checked only: `research/proof-exact-search.md`. External review: RP-0002 to ChatGPT, and possibly a human expert (needs the lead's approval). |
 | Is the implementation correct? | Tests against literature (Iraids Table 3, AZ2012 Thm 1.6, Wang), a second implementation, and an independent author's code (He). |
 | Can I check it without trusting your code? | **Proof certificate:** the search writes out its pruned search tree, and a small independent checker verifies it (S2 below). |
 | Is the base table right? | Two implementations already agree on small n. Add a comparison with the published database (Iraids, n ≤ 10¹², online calculator), if reachable. |

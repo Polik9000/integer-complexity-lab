@@ -1,8 +1,17 @@
 # Correctness of the budgeted exact search (`algorithms/exact_single.py`)
 
-Status of this note: **PROVEN** (human-readable proof below). It still needs independent review
-(planned in RP-0002). The proof covers the *algorithm*. Whether the *implementation* is correct is a
-separate question, handled by tests, cross-checks and independent replication (EXP-0003).
+## Status of this note (revised 2026-11-25 after the lead's review of PR #2)
+
+| Part | What it is | Status |
+|------|------------|--------|
+| Lemma 1 (Selfridge bound) | Classical result. Full proof written below in this revision (it was a TODO before). | `LITERATURE`. Our write-up has been **self-checked only**. Its arithmetic facts are tested for k ≤ 300 (`tests/test_exact_table.py::test_lemma1_inequalities`). |
+| Lemma 2, Theorem | Correctness of the *algorithm*, given its inputs | A complete written proof, **self-checked only**. It is a *conditional* theorem: it assumes a correct base table, complete divisor enumeration and a correct implementation. |
+| Corollary (‖2^61 − 1‖ = 127) | Applies the theorem to one run | `COMPUTATIONALLY VERIFIED` (EXP-0002, replicated in EXP-0003). **Not** `PROVEN`. |
+
+Under CLAUDE.md §4, `PROVEN` needs a proof that "has been checked". We do not count our own reading as that
+check. So **no part of this note is labeled `PROVEN` until the independent review (RP-0002) is done.**
+The proof covers the *algorithm*. The *implementation* is a separate question, handled by tests,
+cross-checks, replication (EXP-0003) and, eventually, a certificate plus an independent checker.
 
 ## Setting
 
@@ -12,14 +21,39 @@ by an exact table, and we treat its correctness as a separate, tested fact (R-01
 
 **Lemma 1 (Selfridge).** If v(E) = m then m³ ≤ 3^{ℓ(E)}. Hence ‖m‖ ≥ λ(m) := min{j : m³ ≤ 3^j}.
 
-*Source and status.* `LITERATURE` (Selfridge, reported in Guy 1986. Iraids et al. 2012, Thm 1 and
-Thm 3). Thm 3 gives the largest value with k ones as E(3j) = 3^j, E(3j+1) = 4·3^{j−1} and
-E(3j+2) = 2·3^j. Each of these is ≤ 3^{k/3}, because 4/3 ≤ 3^{1/3} and 2 ≤ 3^{2/3}. The proof of the
-E(k) formula is by strong induction on k, using E(i) + E(j) ≤ E(i + j) and E(i)·E(j) ≤ E(i + j)
-(Iraids et al. 2012, §2). The naive induction on 3^{ℓ/3} alone does *not* close for sums, because
-(3^{1/3} − 1)² < 1, which is why E(k) is needed. We also checked the E(k) formula computationally
-for k ≤ 25 (`tests/test_exact_table.py::test_selfridge_maxima`). **TODO:** write out the E(k)
-induction in full here, and formalize it in Lean (RQ-5).
+*Source.* `LITERATURE` (Selfridge, reported in Guy 1986; Iraids et al. 2012, Thm 1 and Thm 3).
+
+*Proof (written by us 2026-11-25, self-checked, not yet reviewed).* Define E(1) = 1 and, for k ≥ 2,
+E(3j) = 3^j, E(3j+1) = 4·3^{j−1}, E(3j+2) = 2·3^j. We show that **v(E) ≤ E(ℓ(E))** for every
+expression E. We then show **E(k)³ ≤ 3^k**. Together they give the lemma. We only need the upper bound,
+not that E(k) is attained.
+
+(a) *E(k)³ ≤ 3^k.* E(1)³ = 1 ≤ 3. E(3j)³ = 3^{3j}. E(3j+1)³ = 64·3^{3j−3} ≤ 81·3^{3j−3} = 3^{3j+1}.
+E(3j+2)³ = 8·3^{3j} ≤ 9·3^{3j} = 3^{3j+2}.
+
+(b) *E is strictly increasing, so E(k+1) ≥ E(k) + 1.* The successive ratios are E(2)/E(1) = 2,
+E(3j+1)/E(3j) = 4/3, E(3j+2)/E(3j+1) = 3/2 and E(3j+3)/E(3j+2) = 3/2. All are > 1, and the values are integers.
+
+(c) *Products: E(i)·E(j) ≤ E(i+j) for i, j ≥ 1.* If i = 1 or j = 1, this is (b). Otherwise write
+i = 3a + r and j = 3b + s with i, j ≥ 2. The cases are symmetric in (r, s):
+- (0,0): 3^{a+b} = E(i+j).
+- (0,1): 3^a·4·3^{b−1} = E(i+j).
+- (0,2): 3^a·2·3^b = E(i+j).
+- (1,1): 16·3^{a+b−2} ≤ 18·3^{a+b−2} = E(3(a+b)+2).
+- (1,2): 8·3^{a+b−1} ≤ 9·3^{a+b−1} = E(3(a+b+1)).
+- (2,2): 4·3^{a+b} = E(3(a+b+1)+1).
+
+(d) *Sums: E(i) + E(j) ≤ E(i+j) for i, j ≥ 1.* If i = 1 or j = 1, this is (b). Otherwise
+E(i), E(j) ≥ 2, so E(i) + E(j) ≤ E(i)·E(j) ≤ E(i+j) by (c), using x + y ≤ xy for x, y ≥ 2.
+
+(e) *Induction on ℓ(E).* If E = `1`, then v = 1 = E(1). If E = F ∘ G with ∘ ∈ {+, ·}, then
+ℓ(F), ℓ(G) ≥ 1 and ℓ(E) = ℓ(F) + ℓ(G). By induction v(F) ≤ E(ℓ(F)) and v(G) ≤ E(ℓ(G)), and + and · are
+monotone on positive integers. So (c) or (d) gives v(E) ≤ E(ℓ(E)). ∎
+
+A note on why E(k) is needed: induction on 3^{ℓ/3} alone does *not* close for sums, because
+3^{1/3} + 3^{1/3} > 3^{2/3}. The same facts are checked by computer for k ≤ 300
+(`test_lemma1_inequalities`), and E(k) is checked to be the exact maximum for k ≤ 25 against the table
+(`test_selfridge_maxima`). **Still to do:** formalize this in Lean (RQ-5).
 
 **Lemma 2 (top-level decomposition).** For n ≥ 2,
 ‖n‖ = min( min_{1 ≤ x ≤ n/2} ‖x‖ + ‖n − x‖ , min_{d·e = n, 2 ≤ d ≤ e} ‖d‖ + ‖e‖ ).
@@ -44,7 +78,7 @@ Order the operands so the smaller value comes first. Factors of 1 never help, be
      Otherwise set best := min(best, r + at_most(e, best − 1 − r)).
 6. If best ≤ k, store "‖m‖ = best". Otherwise store "‖m‖ > k". Return best.
 
-**Theorem.** If the base table is correct, divisors are enumerated completely, and every
+**Theorem (conditional).** If the base table is correct, divisors are enumerated completely, and every
 recursive call returns R(·,·) (induction on m, then on k), then `at_most(m, k)` returns R(m, k).
 
 *Proof.* Steps 1–4 are immediate from Lemma 1 and the meaning of the memo entries (induction
@@ -82,9 +116,10 @@ k + 1. ∎
 | Component | How it is checked |
 |-----------|-------------------|
 | Base table c[m], m ≤ 4·10⁸ (C) | Agrees with an independent Python implementation for m ≤ 20000. Agrees with literature values (‖3^k‖, ‖2^k‖, ‖1439‖, Selfridge maxima, Iraids Table 3 for k ≤ 28, Wang's counterexample). The pruning is rigorous (see algorithms/README.md). |
-| Factorization | Miller–Rabin with the first 13 prime bases is deterministic below 3.3·10²⁴ (Sorenson–Webster 2015; to be cited and checked). Pollard rho only needs to *find* factors, and every result is checked by multiplication. Tested on 2^60 − 1. |
+| Factorization | Miller–Rabin with the first 13 prime bases is deterministic below 3.3·10²⁴ (Sorenson–Webster 2015; `UNVERIFIED` until we check the source). Pollard rho only needs to *find* factors, and every result is checked by multiplication. Tested on 2^60 − 1. |
 | Search | Proof above. It agrees with the exact table on 400+ random n (with a 300-entry base table) and with Iraids et al. Table 3 for k = 2…39. |
 | Python big integers | Exact arithmetic. No floating point is used in any decision. |
 
-**Not yet done:** an independent implementation by someone else (EXP-0003), and a review of this
-proof (RP-0002).
+**Done:** independent replication by another author's program (EXP-0003, 60/60 agree, also with He's
+defect pruning switched off). **Not yet done:** an independent review of this note (RP-0002), and a certificate
+that can be checked without trusting either search program (EXP-0003 step 2).

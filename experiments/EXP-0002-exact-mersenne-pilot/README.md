@@ -51,6 +51,8 @@ peel bound, so the search does find better expressions when they exist.
 
 ## Conclusions and status
 
+> **Update 2026-11-25:** independently replicated in [EXP-0003](../EXP-0003-independent-verification/) (He's solver, 60/60 agree, also with its defect pruning switched off). The current statuses are in `RESULTS.md` (R-0007, R-0201). The text below is the original record. One correction: "the algorithm is proven" should read "the algorithm has a conditional correctness proof that has been self-checked but not yet reviewed" (see `research/proof-exact-search.md`).
+
 - **‖2^61 − 1‖ = 127.** Status: `COMPUTATIONALLY VERIFIED`, **provisional**. It rests on a single
   implementation. The algorithm is proven and the implementation is extensively tested, but no
   independent replication exists yet (EXP-0003). The 127 upper bound is also `FORMALLY VERIFIED`.

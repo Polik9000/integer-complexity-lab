@@ -28,5 +28,5 @@ Failed or inconclusive experiments are kept and recorded the same way.
 | ID | Question | Result | Status |
 |----|----------|--------|--------|
 | [EXP-0001](EXP-0001-m61-benchmark-reproduction/) | Reproduce ‖2^61−1‖ ≤ 127 independently | 127 found in 5 s by peel search | done |
-| [EXP-0002](EXP-0002-exact-mersenne-pilot/) | Exact ‖2^k−1‖, k ≤ 61 | ‖2^61−1‖ = 127 (provisional) | done |
+| [EXP-0002](EXP-0002-exact-mersenne-pilot/) | Exact ‖2^k−1‖, k ≤ 61 | ‖2^61−1‖ = 127 (replicated in EXP-0003) | done |
 | [EXP-0003](EXP-0003-independent-verification/) | Independent verification (replication + certificate) | Step 3: He's code agrees on all 60 values k = 2..61 (‖2^61−1‖ = 127) | step 3 done; steps 1, 2, 5, 6 planned |

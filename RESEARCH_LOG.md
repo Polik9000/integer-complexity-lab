@@ -97,3 +97,19 @@ values too large, so the agreement with our Selfridge-only search is still meani
 
 R-0007 and R-0201 move from "provisional: one implementation" to "two independent implementations". They are
 not `PROVEN`. The certificate (step 2) and external review (RP-0002) remain.
+
+## 2026-11-25 (afternoon, cont.): Lead's review of PR #2 and follow-up fixes (Claude Code)
+
+The lead reviewed PR #2 and agrees with the conclusion: "strongly supported by two independent implementations".
+The lead asked for four fixes, then for the certificate work. Done:
+1. `run_he.sh` now **asserts** the upstream SHA-256, aborting with exit 2 on a mismatch (tested with a modified copy). It
+   asserts again after the build.
+2. PR description: removed the stale "provisional" wording.
+3. `research/proof-exact-search.md`: a new status table. The Theorem is a *conditional* correctness theorem, and
+   its proof is self-checked only. Nothing in the note is labeled `PROVEN` until RP-0002. We also wrote out
+   the missing E(k) induction for Lemma 1 (previously TODO), with a new test of its inequalities for k ≤ 300.
+4. Sensitivity run: He's code with the defect < 1 pruning switched off by a one-line patch to a copy
+   (`he_naive_lb.patch`; upstream untouched). It gives the **same 60 values**, k = 61 in 3.58 s.
+
+Decision recorded (lead): **don't extend the table to larger k** until the certificate architecture is specified.
+Next: specify the certificate format and an independently implemented checker for 2^61 − 1.

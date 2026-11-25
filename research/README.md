@@ -12,4 +12,5 @@ evidence status (CLAUDE.md §4).
 | [proof-exact-search.md](proof-exact-search.md) | Conditional correctness theorem for our exact search, with a written proof (self-checked, review pending) |
 | [2026-11-25-certificate-architecture.md](2026-11-25-certificate-architecture.md) | Spec of lower-bound certificates and the independent checker (Theorem C, format, trust base) |
 | [2026-11-25-rq1-strategy-and-exp0003-plan.md](2026-11-25-rq1-strategy-and-exp0003-plan.md) | Strategies S1–S4, EXP-0003 plan, cost model, new open problems |
+| [EXP-0004-independent-proof-audit/](EXP-0004-independent-proof-audit/) | Independent audit of ‖2^61−1‖ = 127: maths, code, adversarial attacks, Lean roadmap, literature, agent disagreements; table-free certificate |
 | [failed-approaches.md](failed-approaches.md) | Audit trail of approaches that didn't work |

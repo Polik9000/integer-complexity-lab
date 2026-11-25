@@ -130,3 +130,25 @@ on hold until the architecture is specified.
 - Status of R-0007: `COMPUTATIONALLY VERIFIED` with a checkable certificate. It is still **not `PROVEN`**, because there has been no
   external review of the checker and the proofs (RP-0002 is next) and no Lean version.
 - We did not run anything for larger k.
+
+## 2026-11-25 (evening): EXP-0004 independent proof audit (Claude Code + five subagents)
+
+The lead asked for an independent, skeptical audit of ‖2^61 − 1‖ = 127 and a Lean roadmap, with independent agents
+(math, implementation, adversarial, Lean, literature). The branch is `research/exp-0004-proof-audit`, based on `main`
+`b7d85c9` (PR #4 merged). Record: `research/EXP-0004-independent-proof-audit/`.
+- **Reproduction:** 54 tests pass. The EXP-0003 certificate regenerates byte-identically (except the header commit) and is
+  accepted (4 min 13 s).
+- **Mathematics:** no error found. Lemma 1, Fact S and Theorem C are now kernel-checked in Lean (PoC, no `sorry`), along with
+  ‖1023‖ = 22 end to end (R-0008, `FORMALLY VERIFIED`). Lemma 2 is worded loosely about factors of 1 (fixed in the audit's
+  write-up).
+- **Checker bug F1 (critical for the tool, no effect on the result):** `check_lower.py` accepts false claims when a factor prime
+  is a JSON float (demonstrated: ‖4·3^33‖ > 103). Three agents found it independently. The real certificates contain only
+  integers. The checker was left unchanged as instructed; a strict xfail test documents the hole. Also found: m = 1 with T ≤ 0
+  (M1), unbound verdict header fields (F2), and weak tests (mutants survive).
+- **New:** a second, strict checker, and a **table-free certificate** (3,068,111 records, 31 MB gzip, only ‖1‖ = 1 assumed). Both
+  checkers accept it. The 10⁸ table is no longer in the trust base.
+- **Literature:** no published exact ‖2^k − 1‖ for k ≥ 40 and no formalization of integer complexity found. The upper bound 127
+  is not new (board PR #4; Iraids 2012 Thm 8). No priority claimed.
+- **Status:** R-0007 stays `COMPUTATIONALLY VERIFIED`, not `PROVEN`.
+- **Next (recommended):** harden `check_lower.py` (separate PR, needs the lead's OK); RP-0002; Lean M2/M3 (decide whether to use
+  Mathlib); then `native_decide` (M5) and a plan for a kernel-only run (M6, ≈ 1–3 CPU-days, estimated).

@@ -22,12 +22,16 @@ also kernel-checked in Lean (`lean/IntegerComplexity/Certificates/`).
 
 `lower/check_lower.py` checks certificates of the form ‖n‖ > j (spec:
 [`research/2026-11-25-certificate-architecture.md`](../research/2026-11-25-certificate-architecture.md)).
-It uses the standard library only and imports nothing from `algorithms/`. It needs the base table file whose SHA-256 is in the
-certificate header.
+It uses the standard library only and imports nothing from `algorithms/`. It needs the base table file, and you must state the
+statement you expect it to prove (version 2, after the EXP-0004 audit):
 
 ```bash
-python3 -I certificates/lower/check_lower.py CERT.jsonl.gz TABLE.bin
+python3 -I certificates/lower/check_lower.py CERT.jsonl.gz TABLE.bin \
+    --target 2305843009213693951 --claim-gt 126 --table-sha256 <SHA-256 of TABLE.bin>
 ```
+
+The verdict line is `ACCEPTED: ||target|| > claim_gt  (table sha256 …)`. Anything else, or exit code ≠ 0, means rejected.
+Hardening record: [`experiments/EXP-0005-checker-hardening/`](../experiments/EXP-0005-checker-hardening/).
 
 | Certificate | Claim | Size | SHA-256 (gzip) | How to get it |
 |-------------|-------|------|----------------|---------------|

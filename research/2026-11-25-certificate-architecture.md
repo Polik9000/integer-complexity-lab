@@ -74,6 +74,21 @@ A bug there can only make the certificate *fail to check*. It cannot make a fals
 
 ## 5. Checker algorithm (normative)
 
+**Version 2 rules (added 2026-11-25 after the EXP-0004 audit, findings F1, F2, M1, F5–F7).** These apply on top of the rules below.
+- **Integers only.** Every numeric field must be a JSON integer token. Floats (`1.0`, `1e0`), `NaN`, `Infinity` and booleans are
+  rejected. The cause was F1: a float factor prime equals the verified int prime in Python, and the float product can round a wrong
+  factorization to m, so true divisors were never enumerated and a false claim was accepted.
+- **Strict JSON.** Duplicate keys are rejected. Every line must be an object. Records must have exactly the fields of §4; the header
+  may also carry `generator`, and `table` may also carry `format`.
+- **Header.** `version` is the integer 1. `target` is a canonical decimal string (no sign, no leading zero). `claim_gt` is an integer
+  ≥ 0. `table.T` is an integer equal to the table length − 1. T must be ≥ 1, so the table holds at least ‖1‖ = 1.
+- **Claims.** m ≥ 2, which Lemma 2 and Theorem C require (M1). Claims with j > 3·bitlen(m) are rejected early: such claims are false,
+  since ‖m‖ ≤ 3 log₂ m, and rejecting them only avoids a long loop. Exponents satisfy 1 ≤ e ≤ bitlen(m).
+- **Prime records.** For p ≥ 2^16 the q list is strictly increasing.
+- **End.** The last claim must be the target claim, with j ≥ claim_gt.
+- **Binding (F2).** The checker takes the *expected* target, claim_gt and table SHA-256 as inputs. It rejects the certificate unless the
+  header matches them, and it prints the SHA-256 in the verdict. Every error, including I/O and gzip errors, gives `REJECTED` and exit 1.
+
 State: `table` (bytes, length T + 1), `primes` (a set of verified primes), `proven` (a dict m → largest
 accepted j).
 

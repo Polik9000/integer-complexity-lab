@@ -82,3 +82,18 @@ sandbox's safety policy. We'll ask the lead for explicit approval. Not worked ar
 replication, S2 certificate plus independent checker, possibly in Lean, S3 defect theory, S4 He's interval
 DP). EXP-0003 steps with cost and risk estimates. Interesting follow-ups: ‖2^64 − 1‖ (tests Iraids'
 Observation 2, predicted 132), and the A(k) structure (RQ-9).
+
+## 2026-11-25 (afternoon, cont.): EXP-0003 step 3, independent replication with He's code (Claude Code)
+
+The lead approved building and running Q. He's GPL solver in the sandbox, by a decision card. We
+built `hqztrue/integer_complexity@742e8c5` (`single.cpp`, unmodified) with a small Linux driver
+(renames `main` and `_init`), and ran `calc_single(2^k − 1)` for k = 2..61.
+**Result: 60/60 values agree with EXP-0002 (42 overlaps) and Iraids Table 3 (38 overlaps). ‖2^61 − 1‖ = 127.**
+That took 17 s in total, 2.6 s for k = 61, about 45× faster than our Python search.
+
+Reading the source showed that He's lower bound is stronger than Selfridge. It hard-codes the families of
+defect < 1 and gives every other number one more. If that list were incomplete, the error could only make
+values too large, so the agreement with our Selfridge-only search is still meaningful.
+
+R-0007 and R-0201 move from "provisional: one implementation" to "two independent implementations". They are
+not `PROVEN`. The certificate (step 2) and external review (RP-0002) remain.

@@ -13,7 +13,7 @@ and ‖11‖ = 8 because `11 = (1+1+1)*(1+1+1)+1+1` and nothing shorter works.
 |-----------|--------|
 | ‖N‖ ≥ 117 | `PROVEN` (via Altman–Zelinsky 2012, Thm 1.6) |
 | ‖N‖ ≤ 127 | `COMPUTATIONALLY VERIFIED` and `FORMALLY VERIFIED` (Lean 4, no axioms) |
-| **‖N‖ = 127** | `COMPUTATIONALLY VERIFIED`, **provisional** (one implementation; independent verification in progress) |
+| **‖N‖ = 127** | `COMPUTATIONALLY VERIFIED` by two independent programs (ours and Q. He's); certificate and external review pending |
 
 Details, provenance and caveats: [`RESULTS.md`](RESULTS.md) and the research brief
 [`research/2026-11-25-m61-benchmark-brief.md`](research/2026-11-25-m61-benchmark-brief.md).

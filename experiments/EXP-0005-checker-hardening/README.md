@@ -20,21 +20,43 @@ certified stays readable. This experiment is the separate fix.
 | F1 | JSON floats are accepted. A factor `p.0` equals the int prime `p` in Python, and a float product rounds to `m`. A false factorization then passes, which removes divisors from the product check. Concrete false acceptances: `‖4·3^33‖ > 103` (T = 50 table), `‖2^8·3^32‖ > 112` with the genuine 10^8 table. | Every numeric field must have type exactly `int`. Fraction/exponent number tokens, `NaN` and `Infinity` are rejected while parsing. `bool` is rejected. | `test_f1_float_factor_rejected`, `test_float_and_bool_tokens_rejected_everywhere`, corpus `f1/`, `adv/attack_float_*`, `impl/fake_float_1e8.jsonl` |
 | F2 | The verdict is whatever the header says. Target, claim and table hash are not pinned by the caller. | `--target`, `--claim-gt` and `--table-sha256` are required CLI inputs. The header must match them, and the verdict line repeats them. | `test_expected_statement_is_bound`, `test_cli_requires_and_checks_expected_statement` |
 | M1 | `m = 1` is allowed. Theorem C needs `m ≥ 2`. With `T = 0` a claim `‖1‖ > 50` passes and cascades. | Claims need `m ≥ 2`. The table needs `T ≥ 1`. | `test_degenerate_tables_and_m_equal_one_rejected`, `test_m_equal_one_rejected_even_with_valid_table` |
-| F3/F4 | The old negative tests are rejected for the wrong reason (at `end`), so they do not test the Pratt and split checks. No mutation testing. | New battery: for every required split of a true claim, weakening the table there must cause a rejection. Pratt negatives whose verdict depends on the prime record. 14 source mutants, all must be killed. | `test_battery_passes_on_real_checker`, `test_mutant_is_killed[*]` |
+| F3/F4 | The old negative tests are rejected for the wrong reason (at `end`), so they do not test the Pratt and split checks. No mutation testing. | New battery: for every required split of a true claim, weakening the table there must cause a rejection. Pratt negatives whose verdict depends on the prime record. 14 source mutants (18 after the review), all must be killed. | `test_battery_passes_on_real_checker`, `test_mutant_is_killed[*]` |
 | F5 | Header fields are not validated (types, unknown keys, `claim_gt < 0`, non-canonical target). | Exact field sets; target is a canonical decimal string; `claim_gt` an int ≥ 0; version is int 1. | `test_header_fields_validated`, `test_bad_claim_gt_rejected` |
 | F6 | Duplicate JSON keys silently keep the last value. | Duplicate keys are rejected. | `test_duplicate_keys_rejected` |
 | F7 | I/O and gzip errors give a traceback, not a verdict. Records may carry extra fields. | Every failure is `REJECTED`, exit 1. Records have exactly the spec fields. The last claim must be the target claim. | `test_records_fields_validated`, `test_last_claim_must_be_target`, CLI truncated-gzip test |
 
-Two guard rules avoid very long loops on hostile input, and neither rejects a true claim:
+Two guard rules shorten some loops on hostile input, and neither rejects a true claim (the first version of this README said they "avoid very long loops"; the review refuted that, see below):
 `j > 3·bitlen(m)` is rejected (then `j ≥ ‖m‖` since `‖m‖ ≤ 3 log2 m`, so the claim is false), and a
 factor exponent above `bitlen(m)` is rejected (then `p^e > m`).
+
+## Independent review of version 2 (same day)
+
+Two independent agents reviewed version 2 without seeing these conclusions (EXP-0004 follow-up; details in the EXP-0004
+disagreement log on PR #5). Neither built a false certificate that version 2 accepts:
+- the **programming/security reviewer** tried about 30 input attacks (BOM, NUL, CR/CRLF, escaped duplicate keys, 5000-digit
+  ints, deep nesting, multi-member gzip, Arabic digits, CLI forms of the target, …), fuzzed about 6,000 random certificates
+  against exact ‖n‖ for n ≤ 3000 and 262,944 composite Pratt records: no false acceptance;
+- the **math reviewer** fed v2 the claims ‖n‖ > ‖n‖ − 1 for every n ≤ 10⁴ with the trivial table (all accepted) and
+  ‖n‖ > ‖n‖ (all rejected).
+
+What they found, and what this branch now does about it:
+
+| Review finding | Change |
+|----------------|--------|
+| Three unsound one-line mutants survived the 72 tests: claim factors need not be verified primes; `LB` uses proven + 2; small q accepted without trial division | Battery extended (composite m as its own "prime", chains of claims over the trivial table up to 200, ‖3^k‖ > 3k, the composite 69751 with q = [2, 9, 31, 125]); the three mutants and a λ off-by-one mutant are added and killed. 18 mutants in total. |
+| A 300-byte claim (m = product of 26 primes) makes v2 build 2^26 divisors (MemoryError) | Claims with more than 2^20 divisors are rejected (resource limit, reject only) |
+| A 7 KB claim with 200 factors [p, 14250] for a 4290-digit m took 64 s (quadratic) | A factor with p^e > m (tested by bit lengths, before the power) or a partial product above m is rejected at once |
+| The table's values are never checked; the SHA only binds the verdict to *a* table | Necessary sanity checks: c[1] = 1 and c[v] ≤ 3·bitlen(v) − 2. The table remains a trusted input; the spec now says the expected SHA must come from an independently verified source |
+| Spec Lemma 2 is false as worded ((1+1)·1) | Wording corrected (strike-through kept); only the min-equation is used |
+| `Checker.run` binds the statement only when the expected values are passed | Not changed (existing tests use the permissive call). Only the CLI is the verdict. Recorded as a known limitation. |
+| The EXP-0004 strict checker has no j/e guards and lets some errors escape as tracebacks (exit 1) | Not changed: it is the audit's tool on PR #5 and is not the certified checker. Recorded there. |
 
 ## Method
 
 1. Rewrite the checker from the spec (`research/2026-11-25-certificate-architecture.md`, section 5,
    now with a "Version 2 rules" block). The mathematical checks (Pratt/Lucas, the Selfridge sum
    cut-off, divisors from the verified factorization, `LB`) are unchanged.
-2. Run the 72 hardening tests: exploits, battery, mutants and the committed corpus.
+2. Run the 81 hardening tests: exploits, battery, 18 mutants, resource guards, table sanity and the committed corpus.
 3. Run the checker in its permissive mode (no expected statement; the attacker writes the header) over
    every false or malformed certificate built during the EXP-0004 audit (`run_corpus.py`).
 4. Run the CLI, with the expected statement, on both genuine certificates for `‖2^61−1‖ > 126`, and on
@@ -43,7 +65,7 @@ factor exponent above `bitlen(m)` is rejected (then `p^e > m`).
 ## Reproduce
 
 ```bash
-python3 -m pytest -q tests/test_check_lower_hardening.py          # 72 tests, ~2 s
+python3 -m pytest -q tests/test_check_lower_hardening.py          # 81 tests, ~2 s
 python3 -I experiments/EXP-0005-checker-hardening/run_corpus.py \
     --tables experiments/EXP-0005-checker-hardening/corpus/tables/* WORK/table_1e8.bin \
     --certs experiments/EXP-0005-checker-hardening/corpus
@@ -94,7 +116,12 @@ Python 3.13.18.
 | Table-free certificate (`623887b1…7dd7808d6173`, 3,068,111 records), table `[0,1]`, expect `> 126` | `ACCEPTED: ‖2305843009213693951‖ > 126  (table sha256 b413f47d…8d2)` | 3 min 41 s |
 | Same, root raised to `> 127`, expect `> 127` | `REJECTED: line 3068112: sum split 1 + 2305843009213693950 not refuted` | 3 min 32 s |
 | Genuine table-free certificate, expect `> 127` | `REJECTED: line 1: header claim_gt 126 is not the expected 127` | < 1 s |
-| All 14 mutants of the checker | all killed by the battery | in pytest |
+| All 18 mutants of the checker | all killed by the battery | in pytest |
+| **Re-run after the review fixes** (guards, table sanity, 81 tests): corpus + 3 mutants | 4 controls accepted, 38 rejected | ~2 min |
+| Re-run: EXP-0003 certificate, 10^8 table, expect `> 126` | ACCEPTED (table sanity passes on the 10^8 table) | 1 min 37 s |
+| Re-run: table-free certificate **regenerated from committed files** (EXP-0004 §7.3), expect `> 126` | ACCEPTED | 3 min 42 s |
+| Re-run: same, root raised to `> 127` | REJECTED at line 3068112 | ~3.5 min |
+| Reviewer's DoS inputs (2^26 divisors; 200 and 800 factors [p, 14250]) | REJECTED in < 0.1 s each | |
 
 The math agent's `exploit.py` P2 probe (F1 on `8·3^33`) found no prime pair in its search range, so it
 built no certificate. F1 is covered by the three other F1 certificates above, which version 1 accepts
@@ -103,7 +130,7 @@ and version 2 rejects.
 ## Conclusions
 
 - `COMPUTATIONALLY VERIFIED`: version 2 rejects every false or malformed certificate built in the
-  EXP-0004 audit, and kills all 14 listed mutants.
+  EXP-0004 audit, and kills all 18 listed mutants.
 - `COMPUTATIONALLY VERIFIED`: version 2 accepts both genuine certificates for `‖2^61−1‖ > 126`, with the
   expected statement pinned, and rejects the table-free certificate with the root raised to `> 127`.
 - The status of R-0007 is not changed by this experiment.

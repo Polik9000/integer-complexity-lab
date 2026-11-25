@@ -147,3 +147,8 @@ PR #5 (the audit stays a draft and documents version 1 as it was).
 - `experiments/EXP-0003-independent-verification/run_cert.sh` now passes the expected statement and compares the
   verdict line exactly.
 - R-0007 keeps its status (`COMPUTATIONALLY VERIFIED`). Version 2 still needs an independent review.
+- (later the same night) An independent programming/security review of v2 found no accepted false certificate, but three unsound
+  mutants that survived the tests and two short DoS inputs. Fixed: four new mutants killed (18 in total), battery extended,
+  reject-only resource guards (p^e or partial product above m, more than 2^20 divisors), table sanity checks (c[1] = 1,
+  c[v] ≤ 3·bitlen(v) − 2). The spec's Lemma 2 sentence (false as worded, found by the math reviewer) is corrected. Both genuine
+  certificates are still accepted and the > 127 variant rejected. 135 tests pass.

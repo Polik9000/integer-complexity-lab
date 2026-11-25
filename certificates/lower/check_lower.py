@@ -4,7 +4,7 @@
 Written from research/2026-11-25-certificate-architecture.md (section 5) only.
 Standard library only; deliberately imports nothing from algorithms/.
 
-Version 2 (hardened after the EXP-0004 audit, findings F1, F2, M1, F5-F7):
+Version 2 (hardened after the EXP-0004 audit, findings F1, F2, M1, F5-F7, and the EXP-0005 review):
   * every numeric field must have Python type exactly ``int`` (bools, floats, NaN and
     Infinity are rejected; JSON number tokens with a fraction or exponent are rejected while
     parsing), and duplicate JSON keys are rejected;
@@ -14,6 +14,8 @@ Version 2 (hardened after the EXP-0004 audit, findings F1, F2, M1, F5-F7):
     match them, so the verdict is bound to the intended statement;
   * the last claim must be the target claim (spec section 4);
   * every failure, including I/O and gzip errors, is reported as REJECTED with exit code 1.
+  * resource guards (reject only): a factor p^e or a partial product above m, more than 2^20 divisors;
+  * table sanity (necessary conditions only): c[1] = 1 and c[v] <= 3*bitlen(v) - 2.
 
 Usage:
   python3 -I check_lower.py CERT.jsonl[.gz] TABLE.bin --target N --claim-gt J --table-sha256 HEX
@@ -27,6 +29,7 @@ import re
 import sys
 
 SMALL = 1 << 16
+MAX_DIVISORS = 1 << 20   # resource limit only: a claim over the limit is rejected, never accepted
 HEX64 = re.compile(r"[0-9a-f]{64}")
 DECIMAL = re.compile(r"[1-9][0-9]*")
 
@@ -104,6 +107,20 @@ class Checker:
             return self.c[v]
         return max(1, lam(v), self.proven.get(v, -1) + 1)
 
+    def check_table_sanity(self):
+        """Cheap necessary conditions on the table (it is still a trusted input, see the spec).
+
+        c[1] must be 1, and c[v] <= 3*bitlen(v) - 2 for every v (writing v in binary by Horner's rule
+        with 2 = 1+1 uses at most that many ones), so no entry exceeds a known upper bound on ||v||."""
+        if self.c[1] != 1:
+            raise Reject("table entry c[1] must be 1")
+        b = 1
+        while (1 << (b - 1)) <= self.T:
+            lo, hi = 1 << (b - 1), min(1 << b, self.T + 1)
+            if max(self.c[lo:hi]) > 3 * b - 2:
+                raise Reject(f"table entry for a {b}-bit number exceeds the upper bound 3*{b}-2")
+            b += 1
+
     def check_header(self, r, table_sha, target, claim_gt):
         keys = set(r)
         if not (HEADER_KEYS <= keys <= HEADER_KEYS | {"generator"}):
@@ -121,6 +138,7 @@ class Checker:
             raise Reject("header table fields differ from the spec")
         if self.T < 1:
             raise Reject("table must contain at least ||1|| (T >= 1)")
+        self.check_table_sanity()
         if tb["T"] != self.T or tb["sha256"] != table_sha:
             raise Reject("table does not match header (T or SHA-256)")
         if target is not None and int(t) != target:
@@ -172,7 +190,7 @@ class Checker:
             # ||m|| <= 3 log2 m < 3 * bitlen(m) for m >= 2, so such a claim is false anyway;
             # rejecting it early only avoids a very long sum loop.
             raise Reject("j exceeds the trivial upper bound 3*bitlen(m)")
-        prod, prev = 1, 1
+        prod, prev, nd = 1, 1, 1
         for pe in f:
             if not (type(pe) is list and len(pe) == 2 and is_int(pe[0]) and is_int(pe[1])):
                 raise Reject("factor entry must be a pair of integers [p, e]")
@@ -182,7 +200,15 @@ class Checker:
             prev = p
             if e < 1 or e > m.bit_length() or not self.is_known_prime(p):
                 raise Reject(f"factor {p}^{e} not a verified prime power")
+            if (p.bit_length() - 1) * e >= m.bit_length():
+                # p^e >= 2^((bitlen(p)-1)*e) >= 2^bitlen(m) > m: cannot divide m (checked before the power)
+                raise Reject(f"factor {p}^{e} exceeds m")
             prod *= p ** e
+            if prod > m:
+                raise Reject("factorization exceeds m")
+            nd *= e + 1
+            if nd > MAX_DIVISORS:
+                raise Reject(f"more than {MAX_DIVISORS} divisors (resource limit)")
         if prod != m:
             raise Reject("factorization does not multiply to m")
         if j >= lam(m):

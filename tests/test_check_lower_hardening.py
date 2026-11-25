@@ -301,6 +301,26 @@ def battery(mod):
                     continue
                 if run(mod, cert(m, j, weak, [claim(m, j)]), weak):
                     fails.append(f"split {a}+{b} or {a}*{b} of {m} not checked (sum {weak[a] + weak[b]})")
+    # a composite m given as its own "prime" factor: the product splits would be skipped
+    for m in BATTERY_M:
+        if factor(m) == [[m, 1]]:
+            continue                                # m is prime
+        exact = list(EXACT[:m])
+        if run(mod, cert(m, EXACT[m], exact, [claim(m, EXACT[m], [[m, 1]])]), exact):
+            fails.append(f"composite {m} accepted as its own prime factor")
+    # chained claims with the trivial table [0, 1]: LB must use proven(v) + 1 and lambda(v) exactly
+    triv = [0, 1]
+    for top in (53, 81, 162, 200):
+        chain = [claim(v, EXACT[v] - 1) for v in range(2, top + 1)]
+        if not run(mod, cert(top, EXACT[top] - 1, triv, chain), triv):
+            fails.append(f"true chain up to {top} rejected")
+        bad = chain[:-1] + [claim(top, EXACT[top])]
+        if run(mod, cert(top, EXACT[top], triv, bad), triv):
+            fails.append(f"false claim ||{top}|| > {EXACT[top]} accepted after a true chain")
+    for k in (2, 3, 4):                             # lambda(3^k) = 3k exactly: off-by-one shows here
+        v = 3 ** k
+        if run(mod, cert(v, 3 * k, triv, [claim(v, 3 * k)]), triv):
+            fails.append(f"false claim ||3^{k}|| > {3 * k} accepted")
     # record count: dropping a redundant claim without fixing the count must be rejected
     exact = list(EXACT[:1439])
     lines = cert(1439, EXACT[1439] - 1, exact, [claim(1439, 0), claim(1439, EXACT[1439] - 1)])
@@ -328,6 +348,7 @@ def battery(mod):
         {"type": "prime", "p": carm, "a": 2, "q": [carm - 1]},      # composite "q"
         {"type": "prime", "p": carm, "a": 3, "q": [2]},             # incomplete factorization of p - 1
         {"type": "prime", "p": 1000001, "a": 2, "q": [2, 5]},       # composite p, Fermat fails
+        {"type": "prime", "p": 69751, "a": 16, "q": [2, 9, 31, 125]},  # composite (11*17*373); small q not prime
     ]
     for br in bad_records:
         tp = br["p"]
@@ -361,6 +382,12 @@ MUTANTS = {
     "lambda shortcut off by one": ("if j >= lam(m):", "if j > lam(m):"),
     "no product check": ("            for d in ds:\n", "            for d in []:\n"),
     "no factorization product check": ("        if prod != m:", "        if False:"),
+    # found by the EXP-0005 independent review (they survived the first version of the battery)
+    "claim factor need not be known prime": ("e > m.bit_length() or not self.is_known_prime(p):",
+                                             "e > m.bit_length():"),
+    "LB uses proven + 2": ("self.proven.get(v, -1) + 1)", "self.proven.get(v, -1) + 2)"),
+    "small q not trial-divided": ("(p < SMALL and small_prime(p))", "(p < SMALL)"),
+    "lambda off by one": ("    while p < c:", "    while p <= c:"),
 }
 
 
@@ -402,3 +429,41 @@ def test_committed_corpus(path):
     except CL.Reject:
         accepted = False
     assert accepted == (path.name in CORPUS_TRUE)
+
+
+# --- 5. Resource guards and table sanity (EXP-0005 review) -----------------------------------------
+
+def test_factor_product_blowup_rejected_quickly():
+    """A ~3800-digit m with many large prime powers must be rejected before computing the product."""
+    import time
+    m = 3 ** 8000 + 2
+    primes = [p for p in range(2, 2000) if CL.small_prime(p)][:300]
+    f = [[p, m.bit_length() // 2] for p in primes]
+    t = time.time()
+    assert not run(CL, cert(m, 1, SMALL50, [claim(m, 1, f)]), SMALL50)
+    assert time.time() - t < 2
+
+
+def test_divisor_blowup_rejected_quickly():
+    """m = product of the first 26 primes would give 2^26 divisors: rejected (resource limit)."""
+    import time
+    primes = [p for p in range(2, 200) if CL.small_prime(p)][:26]
+    m = 1
+    for p in primes:
+        m *= p
+    t = time.time()
+    assert not run(CL, cert(m, lam(m), SMALL50, [claim(m, lam(m), [[p, 1] for p in primes])]), SMALL50)
+    assert time.time() - t < 2
+
+
+@pytest.mark.parametrize("bad", ["c1_zero", "c1_two", "c5_inflated"])
+def test_table_sanity(bad):
+    table = list(EXACT[:51])
+    if bad == "c1_zero":
+        table[1] = 0
+    elif bad == "c1_two":
+        table[1] = 2
+    else:
+        table[5] = 3 * 3 - 1                         # 5 has 3 bits; the bound is 3*3 - 2 = 7
+    assert not run(CL, cert(60, 0, table, [claim(60, 0)]), table)
+    assert run(CL, cert(60, 0, SMALL50, [claim(60, 0)]), SMALL50)

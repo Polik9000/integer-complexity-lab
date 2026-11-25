@@ -7,4 +7,8 @@ evidence status (CLAUDE.md §4).
 | File | Contents |
 |------|----------|
 | [2026-11-25-m61-benchmark-brief.md](2026-11-25-m61-benchmark-brief.md) | Verified initial brief: provenance of 127/116, feasibility, recommended targets |
+| [lit-He2024.md](lit-He2024.md) | He 2024: algorithms, assumptions, costs, code |
+| [lit-AltmanZelinsky2012.md](lit-AltmanZelinsky2012.md) | Defect classification; proof that ‖2^61−1‖ ≥ 117 |
+| [proof-exact-search.md](proof-exact-search.md) | Correctness proof of our exact search |
+| [2026-11-25-rq1-strategy-and-exp0003-plan.md](2026-11-25-rq1-strategy-and-exp0003-plan.md) | Strategies S1–S4, EXP-0003 plan, cost model, new open problems |
 | [failed-approaches.md](failed-approaches.md) | Audit trail of approaches that didn't work |

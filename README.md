@@ -11,9 +11,9 @@ and ‖11‖ = 8 because `11 = (1+1+1)*(1+1+1)+1+1` and nothing shorter works.
 
 | Statement | Status |
 |-----------|--------|
-| ‖N‖ ≥ 116 | `PROVEN` (general bound ‖n‖ ≥ 3 log₃ n ≈ 115.46) |
+| ‖N‖ ≥ 117 | `PROVEN` (via Altman–Zelinsky 2012, Thm 1.6) |
 | ‖N‖ ≤ 127 | `COMPUTATIONALLY VERIFIED` and `FORMALLY VERIFIED` (Lean 4, no axioms) |
-| exact value of ‖N‖ | **open**. Somewhere in 116…127 |
+| **‖N‖ = 127** | `COMPUTATIONALLY VERIFIED`, **provisional** (one implementation; independent verification in progress) |
 
 Details, provenance and caveats: [`RESULTS.md`](RESULTS.md) and the research brief
 [`research/2026-11-25-m61-benchmark-brief.md`](research/2026-11-25-m61-benchmark-brief.md).

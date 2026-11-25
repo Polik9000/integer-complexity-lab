@@ -1,0 +1,3 @@
+✔ [5/5] Built ICLCert.M61.Data (5.7s)
+Build completed successfully (5 jobs).
+MEASURE cmd='timeout 1800 lake build ICLCert.M61.Data' rc=0 wall=7.5s user=4.3s sys=0.9s maxrss=893MB

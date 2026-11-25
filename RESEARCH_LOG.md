@@ -161,3 +161,21 @@ Selfridge's bound, ‖3^k‖ = 3k and ‖2^n‖ = 2n for n ≤ 9, plus defect an
 Our claim "no formalization of integer complexity exists" is **retracted** in EXP-0004 (literature §6, README, disagreement
 log D8). What remains, as "not found" only: Theorem C, a verified certificate checker, exact values that need more than
 Selfridge's bound, and anything about 2^61 − 1. Process lesson recorded in `research/failed-approaches.md`.
+
+## 2026-11-25 (night): EXP-0004 follow-up: reproduction, Lean with Mathlib, second independent review (Claude Code)
+
+The lead asked for the follow-ups to the external audit (PR #5 stays a draft; nothing merged).
+- **Novelty, corrected again.** An independent literature reviewer found google-deepmind/formal-conjectures (Lean definition of
+  ‖n‖ and the split lemma, 2025-06-30) and facebookresearch/atlas-lean (Selfridge-type bounds, recursion, 2026). The primary agent
+  read both at the stated commits. Literature §7; no priority is claimed for anything.
+- **Checker hardening** is in a separate PR (#6, EXP-0005). This branch's certified checker is unchanged.
+- **Reproduction.** `tools/run_tablefree.sh` from a clean checkout: 3,068,111 records, body byte-identical to the first run (only the
+  header's commit field and gzip metadata differ); accepted by the version-1 checker, the strict checker and v2; the root raised
+  to > 127 is rejected by the strict checker and v2.
+- **Lean (`lean-cert/`, Mathlib v4.35.0).** Kernel-checked: checker soundness, divisor completeness, Pratt via `lucas_primality`,
+  and ‖2^20 − 1‖ > 41, ‖2^24 − 1‖ > 49. ‖2^61 − 1‖ > 126 is checked **via `native_decide`** (≈ 100 s), rebuilt independently from
+  the reproduced certificate. New R-0009 (`FORMALLY VERIFIED`) and R-0010 (`COMPUTATIONALLY VERIFIED`, native_decide).
+- **Second review round** (math, programming/security, Lean, literature): no false certificate accepted, no mathematical error.
+  Disagreements D9–D16 recorded. The brief given to the Lean builder had wrong values for ‖2^24 − 1‖, ‖2^30 − 1‖ and ‖2^40 − 1‖
+  (from memory; D16); the repository's EXP-0002 values (50, 63, 82) were confirmed.
+- R-0007 status unchanged (`COMPUTATIONALLY VERIFIED`); it gains evidence item (5).

@@ -1,0 +1,10 @@
+== lake build ICLCert.Test.Kernel24
+info: ICLCert/Test/Kernel24.lean:6:0: type checking took 34.6s
+info: ICLCert/Test/Kernel24.lean:8:0: 'k24_lb' depends on axioms: [propext, Classical.choice, Quot.sound]
+Build completed successfully (1629 jobs).
+MEASURE cmd='timeout 1800 lake build ICLCert.Test.Kernel24' rc=0 wall=43.6s user=40.3s sys=2.4s maxrss=5756MB
+== lake build ICLCert.Test.Kernel30
+✖ [1629/1629] Building ICLCert.Test.Kernel30 (96s)
+error: Lean exited with code 143
+error: build failed
+MEASURE cmd='timeout 1800 lake build ICLCert.Test.Kernel30' rc=1 wall=129.7s user=101.9s sys=6.8s maxrss=11844MB

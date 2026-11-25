@@ -42,7 +42,9 @@ Deliverables: [mathematical audit](mathematical-audit.md) · [implementation aud
   Lean formalization exists (BrettKnox/open-problems-lab, 2026-08-20: Selfridge, ‖3^k‖ = 3k, ‖2^n‖ = 2n for n ≤ 9); see
   [literature §6](literature-and-novelty.md#6-correction-after-the-external-audit-2026-11-25-evening). We found no earlier
   formalization of Theorem C or of a certificate checker. The exact values are new computational and certified results.
-  They are not new mathematics, and we claim no priority.
+  They are not new mathematics, and we claim no priority. **Corrected again (§7):** Knox's is not the earliest either;
+  google-deepmind/formal-conjectures defined ‖n‖ in Lean on 2025-06-30 (with the split lemma), and facebookresearch/atlas-lean
+  has Selfridge-type bounds; see [literature §7](literature-and-novelty.md#7-second-correction-independent-literature-re-search-2026-11-25-night).
 
 ## 2. Answers to the six questions
 
@@ -168,3 +170,58 @@ Nothing in `algorithms/`, `certificates/` or the existing tests was changed.
 5. Apply the bibliography corrections in [literature-and-novelty.md](literature-and-novelty.md) §5. Relabel R-0006 as
    `LITERATURE` (disagreement log, D3).
 6. Optional independent route: Altman 2018 §2.1 lower-bound certifier (needs defect ≈ 10.54 for N; probably expensive).
+
+## 7. Follow-up after the external audit (2026-11-25, night)
+
+The lead asked for six follow-ups. PR #5 stays a draft; nothing was merged.
+
+**7.1 Novelty corrected twice.** See [literature §6](literature-and-novelty.md#6-correction-after-the-external-audit-2026-11-25-evening)
+(Knox) and [§7](literature-and-novelty.md#7-second-correction-independent-literature-re-search-2026-11-25-night) (formal-conjectures
+2025-06-30, atlas-lean 2026). Item by item: the definition, the split lemma and Selfridge's bound were all formalized before us;
+we found no formal Theorem C, no formally verified certificate checker and no formal statement about ‖2^61 − 1‖. No priority is claimed.
+
+**7.2 Checker hardening** is a separate PR (#6, draft, against `main`): `check_lower.py` version 2 and EXP-0005. The certified
+checker on this branch is unchanged.
+
+**7.3 Table-free certificate reproduced from committed files.** `tools/run_tablefree.sh` run from a clean checkout of this branch
+(`f847df9`) into an empty directory, 13 min 11 s wall, single core:
+
+| Check | Result |
+|-------|--------|
+| Record count | 3,068,111 (`end.records`), 2,906,430 claims, 161,681 primes, the same as the first run |
+| Body (all lines after the header) | **byte-identical**: SHA-256 `ba70b22d2272b1e469fb255cba154d8fe054819d68d2f311b302d970e82b9f59` in both runs |
+| Header | differs only in `generator.commit` (`b7d85c9` in the first run, `f847df9` now) |
+| gzip file | differs (SHA-256 `623887b1…6173` first run, `51d00571…cf44` now) only through the header line and the gzip header's mtime and file-name fields |
+| Tables | 10⁸ table `34dbc4da…38f6`, trivial table `b413f47d…8d2`, both asserted by the script |
+| Acceptance | version-1 `check_lower.py`, `tools/check_lower_strict.py`, and the hardened v2 (PR #6, expected statement pinned): all ACCEPT ‖N‖ > 126 |
+| Root raised to > 127 | REJECTED by `check_lower_strict.py` and by v2, at line 3068112 (`sum split 1 + 2305843009213693950 not refuted`) |
+
+The certificate is a reproducible artifact: regenerate with `tools/run_tablefree.sh WORK` (about 13 min, < 1 GB RAM) and compare the
+body hash above. It is not committed (31 MB gzip). A copy can be attached as a release asset; that is public, so it waits for the lead.
+
+**7.4 Lean with Mathlib (`lean-cert/`).** Lean 4.35.0, Mathlib v4.35.0. Built by the Lean builder agent, then rebuilt from scratch by
+the primary agent with data regenerated from the reproduced certificate (data SHA-256 `a562ff00…f56ce2`, identical).
+
+| Theorem | Trust level | Axioms |
+|---------|-------------|--------|
+| `ICLCert.checkCert_sound` (acceptance ⇒ `LowerBound N B`, all N, B, data) | kernel | propext, Classical.choice, Quot.sound |
+| `ICLCert.mem_divisorsOf` (M2: every divisor of ∏ p^e is listed, given the p are prime) | kernel | same |
+| `ICLCert.prattOK_sound` (M3: Pratt records give `Nat.Prime`, via Mathlib `lucas_primality`) | kernel | same |
+| `k20_lb`, `k24_lb` (‖2^20 − 1‖ > 41, ‖2^24 − 1‖ > 49, real certificates) | kernel (`decide +kernel`) | same |
+| `ICLCert.M61.lowerBound_native : LowerBound (2^61 - 1) 127` (M4 + M5) | **`native_decide`** | same + `ICLCert.M61.check_native._native.native_decide.ax_1_1` |
+| `IntegerComplexity.Certificates.M61.upperBound_c_m61_ub127_icl_peel` | kernel | none |
+
+So **‖2^61 − 1‖ > 126 is checked in Lean via `native_decide`, not formally verified** under the documented trust model (kernel +
+three standard axioms). M6 (kernel only) is not done: a single declaration already exceeds 8 GB at k = 30; it needs a checkpointed
+certificate split into many declarations (estimated ≥ 34 CPU-hours), which needs a plan and approval. CI builds the soundness
+theorems and the kernel-only k = 20 case (`lake build ICLCert.CI`); the M61 run needs 94 MB of generated data and is run by hand.
+
+**7.5 Independent adversarial review, second round.** Four new reviewers (math, programming/security, Lean, literature). None found
+a false certificate accepted by either checker or an error in the mathematics. They found test gaps and DoS inputs in v2 (fixed on
+PR #6), a false sentence in the spec, inflated status labels in this audit, and missed prior art. See the
+[disagreement log §6](agent-disagreement-log.md#6-second-round-independent-adversarial-review-2026-11-25-night).
+
+**7.6 Remaining trust assumptions** for ‖N‖ > 126: CPython (for the Python checkers) or the Lean compiler/runtime (for
+`native_decide`); Mathlib oleans from the binary cache; the trivial table's single entry c[1] = 1 (pinned by SHA-256); the expected
+statement supplied by the person running the checker. No reviewer outside the Claude model family has read any of it (RP-0002 open).
+R-0007 stays `COMPUTATIONALLY VERIFIED`.

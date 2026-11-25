@@ -93,6 +93,10 @@ itself was not searched, and a "beat 127" repost may exist there.
 
 ## 6. Correction after the external audit (2026-11-25, evening)
 
+> **Superseded in part by §7.** The table below compares Knox's work with ours only. A later search found an earlier Lean
+> formalization (google-deepmind/formal-conjectures, 2025-06-30) and another one (facebookresearch/atlas-lean). Where §6 says
+> "theirs is earlier", read "earlier than ours, but not the first". The §6 text is kept as it was for the audit trail.
+
 The lead forwarded an external audit that found a prior public Lean formalization. The primary agent then inspected it
 directly: it cloned the repository (HEAD `04ef51fe64bbdd85a40c7105cf0ea46a3bee80af`, Apache-2.0) and read the Lean source,
 not only the README. It did **not** build that project. A rebuild would need its own toolchain, `v4.34.0-rc1`, and its
@@ -127,3 +131,45 @@ conjecture for n <= 9". Status: ✅ (source read; not built by us).
    Sequencelib and formal-conjectures, but missed a GitHub repository whose README names integer complexity. Lesson,
    recorded in `research/failed-approaches.md`: novelty searches for formalizations must include a GitHub code search for
    the defining notion (e.g. `"integer complexity" language:Lean`), not only libraries and web search.
+
+## 7. Second correction: independent literature re-search (2026-11-25, night)
+
+The lead asked for independent reviewers that look for prior work the review missed. A new literature agent, briefed
+to assume the review was incomplete, ran GitHub code searches and read the sources. The primary agent then re-checked the
+two most important finds itself, from the cloned repositories (`git log` and the file at the stated commits). §6 is
+**itself incomplete**: Knox's repository is not the earliest Lean formalization of integer complexity.
+
+### 7.1 New prior work
+
+| # | Source | What it contains | Checked by |
+|---|--------|------------------|------------|
+| P1 | google-deepmind/formal-conjectures, `FormalConjectures/Mathoverflow/75792.lean`. Created by PR #269, commit `798eb17d`, **2025-06-30** (author Kenny Lau). Inspected at HEAD `9097e2f9` (2026-11-24). Apache-2.0. | Inductive `Reachable m n` (constructors one, add, mul); `complexity n := Nat.find …`; `reachable_iff_of_two_le` (for m ≥ 2, a representation is a sum or a product of smaller ones: the split lemma, our Lemma 2), proved in the 2025 commit; a kernel-reducible `Decidable (Reachable m n)` instance (an exhaustive, unpruned decision procedure, used for ‖1‖ = 1 and ‖2‖ = 2 by `decide +kernel`). `complexity_three_pow` is `sorry`; `complexity_two_pow` is marked an open problem. | primary agent (file at `798eb17d` and HEAD, `git log -S`) |
+| P2 | facebookresearch/atlas-lean, `MathlibExt/NumberTheory/IntegerComplexity*.lean`. Inspected at HEAD `58909c41` (2026-11-25). First file `b0cf10508`, 2026-10-05. Its licence says the code is not for training ML models. | `Expr`, `complexity` (`Nat.find`), sub-additivity; `IntegerComplexityBounds.lean` (`c5ccbb380`, 2026-11-23): `complexity_lt_of_gt_extremal` and `complexityLowerBoundG_le`, an integer-sharpened Selfridge bound (cites Arias de Reyna, Cor. 2); `IntegerComplexityRecurrence.lean` (`86c1f3468`, 2026-11-24): `complexity_eq_min`, ‖n‖ as the least value over divisor and sum splits; a log₂ lower bound. No `sorry` or `native_decide` (grep). | primary agent (theorem names, first commits, grep) |
+| P3 | GitHub `patternscientist/integer-complexity-powers-certificate`, commits `23f6985`–`be74752` (2026-06-02/03). Not peer reviewed; the repository says an external audit is pending. | A hash-pinned certificate (a 551 MB low-defect covering, built with Altman's code, checked by a C++ streaming verifier) for ‖2^m − b‖ ≥ 2m − 1, 49 ≤ m ≤ 56, b ∈ {1, 6, 8, 9}, and a claim that ‖2^m‖ = 2m for m ≤ 56. Nothing about 2^61 − 1. Prior art for public, re-checkable lower-bound certificates of the low-defect kind (not of our split-claim kind). | literature agent only (`UNVERIFIED` by the primary agent) |
+| P4 | H. Altman, implementation of the low-defect algorithms: https://hjaltman.github.io/lowdefect.tar.gz and github.com/hjaltman/lowdefect (`9e21cf4`, 2020-11-28). | Corrects §2 item 4 ("no location given"). | literature agent |
+| P5 | J. M. Campbell, arXiv:2403.20073 (*Integers* 24 (2024) A94); P. Zhang, arXiv:2411.19364; Altman & Arias de Reyna, "Integer complexity: stability and self-similarity", now published, doi:10.1142/S1793042126500697. | Generalizations; none is about 2^61 − 1 or formalization. | literature agent |
+
+Searches of Isabelle, Coq/Rocq, Agda and Metamath sources on GitHub found no integer-complexity formalization. The Isabelle
+AFP site could not be fetched, so the AFP part is `UNVERIFIED`. OEIS has no sequence for ‖2^n − 1‖ (value searches for
+k = 1–12 and k = 20–27); oeis.org was reachable from this container, so the BIBLIOGRAPHY row that says "not reachable" is
+wrong for this environment (see D7).
+
+### 7.2 Novelty, item by item (replaces the "Prior?" column of §6 where they differ)
+
+| Item | Verdict |
+|------|---------|
+| Formalization of integer complexity (definition, basic API) | **Not new.** formal-conjectures (2025-06-30), then Knox (2026-08-20), then atlas-lean (2026-10-05). |
+| Formalization of the split lemma / recursion (our Lemma 2) | **Not new.** formal-conjectures `reachable_iff_of_two_le` (2025-06-30); atlas-lean `complexity_eq_min` (2026-11-24). |
+| Formalization of Selfridge's bound | **Not new.** Knox (2026-08-20), n³ ≤ 3^‖n‖; atlas-lean (2026-11-23), a sharper integer form. Ours is an independent re-proof in core Lean. |
+| Formalization of Theorem C (a sound lower-bound function plus the Selfridge cut-off on sum splits and divisor splits gives ‖m‖ > j) | **Not found** as a whole. Its ingredients are formalized elsewhere (P1, P2, Knox). We say "not found", never "first". |
+| Formalized sequential lower-bound certificate checker with a soundness proof | **Not found.** Nearest: formal-conjectures' complete, unpruned decision procedure (used for n ≤ 2), and P3's unformalized certificate. |
+| Formal verification of ‖2^61 − 1‖ = 127 | **Not found anywhere.** Our own Lean check of the lower bound uses `native_decide` (see the EXP-0004 README, follow-up section), so even ours is not a kernel-only verification. |
+| The value 127 | Public only as an **upper bound** (the board submission). Not found published as an exact value. |
+
+No priority claim is made for any item. "Not found" means: not found by the searches recorded in §4, §6 and §7, on
+2026-11-25.
+
+**Process failure, again.** The first specialist wrote that it had checked formal-conjectures, but the file had been there
+since 2025-06-30. The lesson in `research/failed-approaches.md` (code search for the defining notion) is extended: search
+every large Lean corpus (formal-conjectures, Mathlib, atlas-lean-type extension libraries) by **file content**, and
+record the exact queries and hit counts.

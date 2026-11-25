@@ -33,3 +33,14 @@ what happened, why we think it failed, and what might still be worth trying.
   and the web, but **missed** a public GitHub Lean repository (BrettKnox/open-problems-lab, 2026-08-20) that formalizes
   integer complexity. An external audit found it. Rule from now on: a formalization novelty search includes a GitHub code
   search for the notion's name and its Lean identifiers, and a check of the "formal conjectures" style monorepos.
+- **Novelty search, second miss (EXP-0004 follow-up):** the corrected §6 named Knox's 2026 repository as "the" prior
+  formalization. An independent re-search found google-deepmind/formal-conjectures (`Mathoverflow/75792.lean`, 2025-06-30),
+  which the first specialist had claimed to check, and facebookresearch/atlas-lean (2026). Rule tightened: search large Lean
+  corpora by **file content** (GitHub code search `"integer complexity" language:Lean`, and the defining identifiers), record
+  queries and hit counts, and have a second, independent agent repeat the search before any "not found" is written.
+- **Checker v2 tests, first version (EXP-0005):** 72 tests and 14 mutants looked complete, but an independent reviewer found
+  three unsound one-line mutants that survived (unverified claim factors, LB + 2, small q without trial division) and two
+  short DoS inputs. Lesson: mutation lists written by the author of the code miss the author's blind spots; get an
+  independent reviewer to propose mutants.
+- **Lean, kernel-only full certificate as one declaration:** k = 30 (6,542 records) already used 11.8 GB and was killed.
+  A kernel-only proof needs the run split into checkpointed declarations.

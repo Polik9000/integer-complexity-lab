@@ -29,3 +29,20 @@ jobs:
       - name: Axiom report
         working-directory: lean
         run: lake env lean scripts/CheckAxioms.lean
+  lean-cert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: lean-cert's copy of the definitions matches lean/
+        run: |
+          for f in Basic.lean PoC/Selfridge.lean PoC/Checker.lean Certificates/M61.lean; do
+            cmp "lean/IntegerComplexity/$f" "lean-cert/IntegerComplexity/$f"
+          done
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: lean-cert
+          use-mathlib-cache: true
+          build: false
+      - name: Build soundness proofs and the kernel-only 2^20-1 check (prints axioms)
+        working-directory: lean-cert
+        run: lake build ICLCert.CI

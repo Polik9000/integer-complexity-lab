@@ -5,7 +5,7 @@ once they exist. Status: `open`, `active`, `answered` (see RESULTS), `parked`, `
 
 | ID | Question | Priority | Status | Notes |
 |----|----------|----------|--------|-------|
-| RQ-1 | What is ‖2^61 − 1‖ exactly? | **P1** | open (planning) | Known: 116 ≤ ‖N‖ ≤ 127. Route: implement He's (2023/24) single-target exact algorithm (Thm 8, O(n^0.6154)). Validate it against our exact tables and published data, then run it under an approved plan. See the [brief](research/2026-11-25-m61-benchmark-brief.md) §6-B. |
+| RQ-1 | What is ‖2^61 − 1‖ exactly? | **P1** | active (literature step; decided 2026-11-25) | Known: 116 ≤ ‖N‖ ≤ 127. Route: implement He's (2023/24) single-target exact algorithm (Thm 8, O(n^0.6154)). Validate it against our exact tables and published data, then run it under an approved plan. See the [brief](research/2026-11-25-m61-benchmark-brief.md) §6-B. |
 | RQ-2 | Exact ‖2^k − 1‖ for 40 ≤ k ≤ ~100? How do they compare with the upper bounds of Iraids et al. (2012, Thm 8 / Cor. 2–3)? | P2 | open | Extends Iraids et al. Table 3 (k ≤ 39). Depends on RQ-1 tooling. Our C table already reaches k ≤ 28 cheaply. |
 | RQ-3 | Can defect theory (Altman–Zelinsky 2012; Altman 2016, 2019) prove ‖2^61 − 1‖ ≥ 117 or more, rigorously and cheaply? | P2 | open | Needs a literature read first. A result would also prune the RQ-1 search. |
 | RQ-4 | Is there an expression for 2^61 − 1 with fewer than 127 ones? | P3 | open | Bounded heuristic side experiments only. Answered as a byproduct if RQ-1 succeeds. |

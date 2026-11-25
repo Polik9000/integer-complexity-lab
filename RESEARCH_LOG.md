@@ -38,3 +38,16 @@ Claude Code / reviewer), what was done, findings with statuses, decisions, failu
   single-target algorithm), with RQ-3 (defect-based lower bounds) and RQ-2 (‖2^k − 1‖ table) as
   companions. The next step is reading He 2024 in full and Altman 2016/2019, then planning EXP-0002.
   No expensive computation until the plan is approved.
+
+## 2026-11-25: Decision: primary research target (human lead)
+
+**Decision:** The human lead approved reframing the primary target from "beat 127" to
+**RQ-1: determine ‖2^61 − 1‖ exactly**. RQ-3 (defect-based lower bounds) and RQ-2 (a table of
+exact ‖2^k − 1‖) are companions. RQ-4 ("fewer than 127 ones") is kept only as bounded side
+experiments.
+**Alternatives considered:** keep "beat 127" as the main goal (rejected: heuristic results only,
+no endpoint; see brief §6).
+**Also:** the lead approved publishing the repository as public `Polik9000/integer-complexity-lab`.
+It was created and `main` was pushed on 2026-11-25.
+**Next step:** a literature step: read He 2024 §3–4 in full and Altman 2016/2019, then write an
+EXP-0002 plan (implementation and validation of He's single-target algorithm) for approval.

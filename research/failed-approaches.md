@@ -29,3 +29,7 @@ what happened, why we think it failed, and what might still be worth trying.
   table-free certificate (2.87M vs 2.908M).
 - **Float-factor exploit, first tries:** semiprimes within ±1…±3 of 2·3^33 did not exist in a small prime range. The working
   construction needed m = 2^a·3^k with a larger float spacing (see `tools/float_factor_attack.py`).
+- **Novelty search for formalizations (EXP-0004 literature review):** it searched Mathlib, Sequencelib, formal-conjectures
+  and the web, but **missed** a public GitHub Lean repository (BrettKnox/open-problems-lab, 2026-08-20) that formalizes
+  integer complexity. An external audit found it. Rule from now on: a formalization novelty search includes a GitHub code
+  search for the notion's name and its Lean identifiers, and a check of the "formal conjectures" style monorepos.

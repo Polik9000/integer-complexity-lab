@@ -147,8 +147,17 @@ The lead asked for an independent, skeptical audit of ‖2^61 − 1‖ = 127 and
   (M1), unbound verdict header fields (F2), and weak tests (mutants survive).
 - **New:** a second, strict checker, and a **table-free certificate** (3,068,111 records, 31 MB gzip, only ‖1‖ = 1 assumed). Both
   checkers accept it. The 10⁸ table is no longer in the trust base.
-- **Literature:** no published exact ‖2^k − 1‖ for k ≥ 40 and no formalization of integer complexity found. The upper bound 127
+- **Literature:** no published exact ‖2^k − 1‖ for k ≥ 40 and ~~no formalization of integer complexity~~ found (the formalization part is **corrected** in the next entry). The upper bound 127
   is not new (board PR #4; Iraids 2012 Thm 8). No priority claimed.
 - **Status:** R-0007 stays `COMPUTATIONALLY VERIFIED`, not `PROVEN`.
 - **Next (recommended):** harden `check_lower.py` (separate PR, needs the lead's OK); RP-0002; Lean M2/M3 (decide whether to use
   Mathlib); then `native_decide` (M5) and a plan for a kernel-only run (M6, ≈ 1–3 CPU-days, estimated).
+
+## 2026-11-25 (late evening): EXP-0004 correction, prior Lean formalization (Claude Code)
+
+An external audit forwarded by the lead found a prior public Lean formalization of integer complexity:
+`BrettKnox/open-problems-lab`, `OpenProblemsLab/IntegerComplexity.lean`, commit `e899b51` (2026-08-20). It covers ‖n‖,
+Selfridge's bound, ‖3^k‖ = 3k and ‖2^n‖ = 2n for n ≤ 9, plus defect and stability. We inspected its source (we did not build it).
+Our claim "no formalization of integer complexity exists" is **retracted** in EXP-0004 (literature §6, README, disagreement
+log D8). What remains, as "not found" only: Theorem C, a verified certificate checker, exact values that need more than
+Selfridge's bound, and anything about 2^61 − 1. Process lesson recorded in `research/failed-approaches.md`.

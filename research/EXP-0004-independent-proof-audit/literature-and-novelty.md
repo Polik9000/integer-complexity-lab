@@ -16,8 +16,11 @@ or metadata only; ○ not read. A recalled fact that nobody checked is `UNVERIFI
   which costs 2 + 63 + 61 + 1 = 127 ones. Their closed-form Cor. 2 and Cor. 3 give 129 and 130.
 - **Exact value 127:** not found in any published or public source.
 - **Exact ‖2^k − 1‖ for k ≥ 40:** not found. Iraids' Table 3 stops at k = 39, because 2^40 − 1 is past their 10¹² range.
-- **Formalization:** no formalization of integer complexity was found in Lean, Coq or Isabelle. The Lean OEIS library
-  Sequencelib (about 25.5k sequences) does not contain A005245.
+- **Formalization (corrected 2026-11-25, see §6):** ~~no formalization of integer complexity was found in Lean, Coq or Isabelle.~~
+  **Wrong.** An external audit pointed to a prior public Lean 4 + Mathlib formalization, `BrettKnox/open-problems-lab`
+  (`OpenProblemsLab/IntegerComplexity.lean`, first commit 2026-08-20), which proves Selfridge's bound, ‖3^k‖ = 3k and
+  ‖2^n‖ = 2n for n ≤ 9. Our literature specialist missed it. The Lean OEIS library Sequencelib (about 25.5k sequences)
+  does not contain A005245; that part stands.
 
 ## 2. Per-source findings
 
@@ -53,7 +56,7 @@ or metadata only; ○ not read. A recalled fact that nobody checked is `UNVERIFI
 | **Our independent reproduction** | Iraids Table 3 (k ≤ 39) with two programs; running He's code is a replication, not an independent result. |
 | **New computational result** (modest) | Exact ‖2^k − 1‖ for 40 ≤ k ≤ 61, in particular ‖N‖ = 127. Published algorithms make it computable, and a private computation by someone else cannot be ruled out. |
 | **New certified result** | A published, checkable lower-bound certificate for ‖N‖ > 126, now including a table-free version. |
-| **New formalized result** (prospective) | A Lean proof of an exact integer complexity value of this size. No formalization of integer complexity was found at all, so we found no earlier kernel-checked exact value than our ‖1023‖ = 22 PoC. The search was not exhaustive, so this is not a priority claim. |
+| **New formalized result** (prospective, corrected) | ~~No formalization of integer complexity was found at all, so we found no earlier kernel-checked exact value than our ‖1023‖ = 22 PoC.~~ **Corrected:** integer complexity, Selfridge's bound and several exact values (‖3^k‖ = 3k, ‖2^n‖ = 2n for n ≤ 9, ‖6‖ = 5) were formalized before us (§6). What we found no earlier formalization of: Theorem C, a verified sequential lower-bound certificate checker, an exact value that needs more than Selfridge's bound (such as ‖1023‖ = 22, where λ = 19), and any statement about ‖2^61 − 1‖. This is a statement about what we found, not a priority claim. |
 | **New mathematical result** | None. There is no human-readable proof and no general theorem. |
 
 **Do not claim priority.** The searches are listed below. "Not found" is not "does not exist". The problem.market site
@@ -87,3 +90,40 @@ itself was not searched, and a "beat 127" repost may exist there.
 11. OEIS-A005245: reachable from this container; the "not reachable" note depends on the container.
 12. He2024: record the unlinked 2026 Horner paper as `UNVERIFIED`.
 13. Board-M61-PR4: PR page now read. Do not record the submitter's name or e-mail from the commit metadata (CLAUDE.md rule 9).
+
+## 6. Correction after the external audit (2026-11-25, evening)
+
+The lead forwarded an external audit that found a prior public Lean formalization. The primary agent then inspected it
+directly: it cloned the repository (HEAD `04ef51fe64bbdd85a40c7105cf0ea46a3bee80af`, Apache-2.0) and read the Lean source,
+not only the README. It did **not** build that project. A rebuild would need its own toolchain, `v4.34.0-rc1`, and its
+Mathlib pin `d77ef07`.
+
+**Source.** B. Knox (GitHub `BrettKnox`), *open-problems-lab*, file `OpenProblemsLab/IntegerComplexity.lean` (484 lines,
+Lean 4 + Mathlib). The repository's first commit `cf02856` is dated 2026-08-19 and adds the problem statements. The
+formalization itself is commit `e899b51` of 2026-08-20, "Formalize integer complexity; prove Selfridge bound and
+conjecture for n <= 9". Status: ✅ (source read; not built by us).
+
+**What it formalizes** (theorem names from the source; its header says no `sorry`, axioms `propext`,
+`Classical.choice`, `Quot.sound`; our grep found no `sorry`, `axiom` or `native_decide`):
+
+| Item | Their Lean | Ours (EXP-0004) | Prior? |
+|------|------------|-----------------|--------|
+| Expressions over 1, +, ×; value and size | `OnesExpr`, `eval`, `size` | `Expr`, `eval`, `ones` (since 2026-11-25, `Basic.lean`) | **yes, theirs is earlier** |
+| ‖n‖ as a function | `complexity n := sInf (sizes n)` (noncomputable) | only the predicates `UpperBound` / `LowerBound` / `HasComplexity` | **yes, theirs is earlier** |
+| Selfridge's bound n³ ≤ 3^‖n‖ (and 3 log₃ n ≤ ‖n‖) | `cube_eval_le_three_pow_size`, `cube_le_three_pow_complexity`, `three_logb_le_complexity` | `Expr.selfridge` | **yes, theirs is earlier**; ours is an independent re-proof in core Lean |
+| Exact values | ‖1‖, ‖2‖, ‖3‖, ‖6‖ = 5, ‖3^k‖ = 3k, ‖2^n‖ = 2n for n ≤ 9. Every one follows from Selfridge's bound plus an expression; none needs a split search. | ‖1023‖ = 22 by a kernel-checked certificate (λ(1023) = 19, so Selfridge alone gives only ≥ 19) | exact values: **yes, theirs are earlier**. Exact values that need more than Selfridge: none found in theirs. |
+| Sub-additivity API, defect δ(n), stability | `complexity_add_le`, `complexity_mul_le`, `defect`, `IsStable`, `conjecture_iff_defect` | not formalized | theirs only |
+| Theorem C (soundness of the split rules) | not present | `theoremC` | none found |
+| Sequential lower-bound certificate checker with a soundness proof | not present. Their header says a computational route was "measured and rejected" for 2^n with n ≥ 10. | `checkAll_sound`, `lowerBound_of_checkT` | none found |
+| ‖2^61 − 1‖ (any bound) | not present | upper bound 127 kernel-checked; lower bound not formally verified | none found |
+
+**Consequences for our claims:**
+1. "No formalization of integer complexity exists" is **retracted** wherever it appeared: this file (§1, §3), the EXP-0004
+   README, `RESEARCH_LOG.md` and the PR #5 description. The original wording is kept with strike-through for the audit trail.
+2. Our Selfridge proof is a **re-formalization**, not a first.
+3. We can say only: *we found no earlier formalization* of Theorem C, of a verified certificate checker, or of an exact value
+   that needs more than Selfridge's bound. This needs a new search before anyone relies on it (EXP-0004 follow-up literature review).
+4. **Process failure:** the literature specialist searched "Lean / Isabelle / Coq integer complexity" and checked Mathlib,
+   Sequencelib and formal-conjectures, but missed a GitHub repository whose README names integer complexity. Lesson,
+   recorded in `research/failed-approaches.md`: novelty searches for formalizations must include a GitHub code search for
+   the defining notion (e.g. `"integer complexity" language:Lean`), not only libraries and web search.

@@ -38,8 +38,11 @@ Deliverables: [mathematical audit](mathematical-audit.md) · [implementation aud
   checking of the full certificate is estimated at 1–3 CPU-days (an extrapolation); `native_decide` would take minutes but
   trusts the compiler.
 - **Novelty.** The upper bound 127 was already public (board PR #4) and follows from Iraids et al. 2012. We found no
-  published exact value of ‖2^k − 1‖ for any k ≥ 40, and no formalization of integer complexity. These are new computational
-  and certified results. They are not new mathematics, and we claim no priority.
+  published exact value of ‖2^k − 1‖ for any k ≥ 40. ~~and no formalization of integer complexity.~~ **Corrected:** a prior
+  Lean formalization exists (BrettKnox/open-problems-lab, 2026-08-20: Selfridge, ‖3^k‖ = 3k, ‖2^n‖ = 2n for n ≤ 9); see
+  [literature §6](literature-and-novelty.md#6-correction-after-the-external-audit-2026-11-25-evening). We found no earlier
+  formalization of Theorem C or of a certificate checker. The exact values are new computational and certified results.
+  They are not new mathematics, and we claim no priority.
 
 ## 2. Answers to the six questions
 

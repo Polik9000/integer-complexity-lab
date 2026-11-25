@@ -28,7 +28,7 @@ or is marked as the agent's own result.
 | Implementation auditor | No bug in the search or the C table. The checker has F1 (critical), F2 (major, header binding) and weak tests (nine real surviving mutants). The real certificate is clean. |
 | Adversarial reviewer | Seven ways to make `check_lower.py` accept false statements (floats, T ≤ 0 with m = 1, bool m). Every mutation of the real certificate is rejected. No ≤ 126 expression was found; the table spot checks are clean. |
 | Lean specialist | Selfridge, Theorem C and sequential checker soundness are now kernel-checked, along with ‖1023‖ = 22. The full proof is feasible: 1–3 CPU-days kernel-only, or minutes with `native_decide`. Divisor completeness and Lucas remain open. |
-| Literature specialist | ≥ 117 is the best published lower bound, and 127 as an upper bound is not new. No published exact value exists for any k ≥ 40, and no formalization of integer complexity exists. Do not claim priority. |
+| Literature specialist | ≥ 117 is the best published lower bound, and 127 as an upper bound is not new. No published exact value exists for any k ≥ 40, and no formalization of integer complexity exists (**refuted later**, see D8). Do not claim priority. |
 
 ## 3. Agreements reached independently
 
@@ -52,6 +52,7 @@ or is marked as the agent's own result.
 | D5 | **Lucas/Pratt: easy or hard to formalize?** The math auditor called it textbook; the Lean specialist estimated 3–5 days in core Lean. | Not a real disagreement. The mathematics is elementary, but core Lean lacks the group theory (orders of units). The estimate stands, and Mathlib would shorten it. This is a decision for the lead. |
 | D6 | **Is the C table independent of our Python table?** EXP-0003 presents our table and He's as independent; the implementation auditor notes that our Python and C tables share an algorithm. | Both statements are true. The independent cross-check at 10⁸ is against **He's** table, not our Python one. This audit did not rebuild He's table. It is moot for the table-free certificate. |
 | D7 | **Is oeis.org reachable?** Project memory says it is blocked; the literature specialist reached it. | It depends on the container or network policy. Record both. |
+| D8 | **Prior formalization (external audit vs literature specialist).** The specialist reported "no formalization of integer complexity in Lean, Coq or Isabelle". An external audit forwarded by the lead pointed to `BrettKnox/open-problems-lab`. | **Resolved against the specialist, by inspecting the source** (primary agent, 2026-11-25 evening). The repository's `IntegerComplexity.lean` (commit `e899b51`, 2026-08-20) formalizes ‖n‖, Selfridge's bound and several exact values. The claim is retracted. The narrower statement, that we found no formalization of Theorem C or of a certificate checker, is kept only as "not found", pending a new search. See [literature §6](literature-and-novelty.md#6-correction-after-the-external-audit-2026-11-25-evening). |
 
 ## 5. Points on which no agent could decide
 

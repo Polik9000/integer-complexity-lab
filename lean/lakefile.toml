@@ -1,0 +1,6 @@
+name = "IntegerComplexity"
+version = "0.1.0"
+defaultTargets = ["IntegerComplexity"]
+
+[[lean_lib]]
+name = "IntegerComplexity"

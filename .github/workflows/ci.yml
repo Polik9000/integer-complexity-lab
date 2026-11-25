@@ -1,0 +1,31 @@
+name: ci
+on:
+  push: {branches: [main]}
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install pytest
+      - run: python -m pytest -q
+      - run: python certificates/verify.py
+      - name: Lean certificates are in sync with JSON certificates
+        run: |
+          python lean/scripts/gen_certificates.py
+          git diff --exit-code lean/IntegerComplexity/Certificates/
+  lean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: lean
+          use-mathlib-cache: false
+      - name: Axiom report
+        working-directory: lean
+        run: lake env lean scripts/CheckAxioms.lean

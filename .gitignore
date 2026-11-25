@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+*.egg-info/
+
+# Build outputs / large data (record checksums in experiments/ instead)
+*.bin
+*.o
+/build/
+experiments/**/out/
+lean/.lake/
+
+# Claude Chat package build output (rebuild with claude-project/build_knowledge_package.sh)
+claude-project/dist/
+
+# Credentials, never commit
+.env
+.env.*
+*.pem
+*.key
+credentials*.json
+.claude/settings.local.json
+
+# Editors / OS
+.DS_Store
+.vscode/
+.idea/

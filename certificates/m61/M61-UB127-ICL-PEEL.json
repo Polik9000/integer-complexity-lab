@@ -1,0 +1,16 @@
+{
+  "id": "M61-UB127-ICL-PEEL",
+  "n": "2305843009213693951",
+  "n_form": "2^61-1",
+  "claim": "||2^61-1|| <= 127",
+  "ones": 127,
+  "evidence_status": "COMPUTATIONALLY VERIFIED (upper bound only)",
+  "provenance": {
+    "source": "this repository",
+    "experiment": "experiments/EXP-0001-m61-benchmark-reproduction",
+    "date": "2026-11-25"
+  },
+  "method": "peel search n = d*m + r, exact table T=4e8, R=1, D=100 (algorithms/upper_bound_search.py)",
+  "notes": "Found independently in ~5 s. Structurally different search from the board submission; same count.",
+  "expression": "(1+1)*((1+1+1)*((1+1+1)*((1+(1+1)*(1+1+1))*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1+1)*((1+(1+1)*((1+1+1)*(1+1+1)))*((1+(1+1)*((1+1)*((1+1)*((1+1+1)*(1+1+1)))))*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*(1+(1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*((1+1)*(1+1+1+1))))))))))))))))))))))))))))))))))+1)))))))))+1))))+1"
+}

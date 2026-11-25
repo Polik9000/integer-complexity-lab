@@ -51,3 +51,65 @@ no endpoint; see brief §6).
 It was created and `main` was pushed on 2026-11-25.
 **Next step:** a literature step: read He 2024 §3–4 in full and Altman 2016/2019, then write an
 EXP-0002 plan (implementation and validation of He's single-target algorithm) for approval.
+
+## 2026-11-25 (afternoon): RQ-1 literature step and exact pilot (Claude Code)
+
+The lead asked for: He's algorithm and proofs studied in full, assumptions and costs verified,
+alternatives explored, independent checks against literature, ≥ 2 alternative strategies, and an EXP plan
+with CPU/RAM/risk estimates. No long or paid computation.
+
+**Literature** (notes in `research/lit-He2024.md`, `research/lit-AltmanZelinsky2012.md`)
+- He 2024: the single-target O(n^0.6154) bound is worst-case and driven by α ≤ 4.125. The finite-n use of
+  the additive-part lemma needs the explicit inequality, which the paper leaves asymptotic. The code is public
+  (GPL), uses the same budgeted-DFS idea, and reports no runtimes.
+- Altman–Zelinsky 2012 Thm 1.6 (classification of δ < 1) gives **‖2^61−1‖ ≥ 117** with a short proof.
+  We checked Thm 1.6 against our exact table for n ≤ 4·10⁸: exactly the 420 predicted numbers.
+
+**Key insight.** With a verified upper bound U, any additive split x + y of n needs x·y ≤ 3^{(U−1)/3}.
+For N with U = 127 that means x ≤ ~94. So an exhaustive budgeted search is tiny compared with
+He's worst case.
+
+**EXP-0002 (cheap, ~6 min CPU in total).** Implemented `algorithms/exact_single.py` with a written
+correctness proof (`research/proof-exact-search.md`). Results:
+- Matches the exact table on 314 values, and **all 38 published values of Iraids Table 3** (k ≤ 39).
+- **‖2^61 − 1‖ = 127** (117 s), plus new values ‖2^k − 1‖ for 40 ≤ k ≤ 60.
+- Status: `COMPUTATIONALLY VERIFIED`, **provisional**, because there is only one implementation.
+
+**Blocked:** compiling and running He's GPL code as an independent replication was refused by the
+sandbox's safety policy. We'll ask the lead for explicit approval. Not worked around.
+
+**Plan:** `research/2026-11-25-rq1-strategy-and-exp0003-plan.md`. Four strategies (S1 independent
+replication, S2 certificate plus independent checker, possibly in Lean, S3 defect theory, S4 He's interval
+DP). EXP-0003 steps with cost and risk estimates. Interesting follow-ups: ‖2^64 − 1‖ (tests Iraids'
+Observation 2, predicted 132), and the A(k) structure (RQ-9).
+
+## 2026-11-25 (afternoon, cont.): EXP-0003 step 3, independent replication with He's code (Claude Code)
+
+The lead approved building and running Q. He's GPL solver in the sandbox, by a decision card. We
+built `hqztrue/integer_complexity@742e8c5` (`single.cpp`, unmodified) with a small Linux driver
+(renames `main` and `_init`), and ran `calc_single(2^k − 1)` for k = 2..61.
+**Result: 60/60 values agree with EXP-0002 (42 overlaps) and Iraids Table 3 (38 overlaps). ‖2^61 − 1‖ = 127.**
+That took 17 s in total, 2.6 s for k = 61, about 45× faster than our Python search.
+
+Reading the source showed that He's lower bound is stronger than Selfridge. It hard-codes the families of
+defect < 1 and gives every other number one more. If that list were incomplete, the error could only make
+values too large, so the agreement with our Selfridge-only search is still meaningful.
+
+R-0007 and R-0201 move from "provisional: one implementation" to "two independent implementations". They are
+not `PROVEN`. The certificate (step 2) and external review (RP-0002) remain.
+
+## 2026-11-25 (afternoon, cont.): Lead's review of PR #2 and follow-up fixes (Claude Code)
+
+The lead reviewed PR #2 and agrees with the conclusion: "strongly supported by two independent implementations".
+The lead asked for four fixes, then for the certificate work. Done:
+1. `run_he.sh` now **asserts** the upstream SHA-256, aborting with exit 2 on a mismatch (tested with a modified copy). It
+   asserts again after the build.
+2. PR description: removed the stale "provisional" wording.
+3. `research/proof-exact-search.md`: a new status table. The Theorem is a *conditional* correctness theorem, and
+   its proof is self-checked only. Nothing in the note is labeled `PROVEN` until RP-0002. We also wrote out
+   the missing E(k) induction for Lemma 1 (previously TODO), with a new test of its inequalities for k ≤ 300.
+4. Sensitivity run: He's code with the defect < 1 pruning switched off by a one-line patch to a copy
+   (`he_naive_lb.patch`; upstream untouched). It gives the **same 60 values**, k = 61 in 3.58 s.
+
+Decision recorded (lead): **don't extend the table to larger k** until the certificate architecture is specified.
+Next: specify the certificate format and an independently implemented checker for 2^61 − 1.

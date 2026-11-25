@@ -45,6 +45,24 @@ def test_selfridge_maxima():
         assert E == expected, m
 
 
+def _E(k):
+    """Closed form of the Selfridge maxima used in research/proof-exact-search.md, Lemma 1."""
+    if k == 1:
+        return 1
+    j, r = divmod(k, 3)
+    return [3**j, 4 * 3 ** (j - 1), 2 * 3**j][r]
+
+
+def test_lemma1_inequalities():
+    # The facts the written proof of Lemma 1 uses, checked for k <= 300 (the proof covers all k).
+    for k in range(1, 301):
+        assert _E(k) ** 3 <= 3**k                     # E(k) <= 3^(k/3)
+        assert _E(k + 1) >= _E(k) + 1                 # strictly increasing
+        for i in range(1, k):
+            assert _E(i) * _E(k - i) <= _E(k)         # products
+            assert _E(i) + _E(k - i) <= _E(k)         # sums
+
+
 def test_lower_bound_3log3():
     # ||n|| >= 3 log_3 n  <=>  n^3 <= 3^||n||
     assert all(n**3 <= 3 ** C[n] for n in range(1, N + 1))

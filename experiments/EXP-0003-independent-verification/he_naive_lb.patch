@@ -1,0 +1,11 @@
+--- a/integer-complexity-128/single.cpp
++++ b/integer-complexity-128/single.cpp
+@@ -71,7 +71,7 @@
+ unordered_map<u128,int> M_lb;  //record the numbers with low defect.
+ double M_lb_thres=1;
+ int complexity_LB(u128 n){  //better lower bound for f(n). (improvable)
+-	//return complexity_LB_naive(n);
++	return complexity_LB_naive(n);  // EXP-0003 sensitivity patch: Selfridge bound only
+ 	if (n==1)return 1;
+ 	int l=upper_bound(g+1,g+g1,n)-g-1;
+ 	auto it=M_lb.find(n);

@@ -6,7 +6,7 @@
 |------|--------|
 | GitHub account | `Polik9000`, reachable through the Claude GitHub connector (API) |
 | `gh` CLI in the cloud container | Its token is invalid. Not needed, because the connector is used instead. |
-| Repository `Polik9000/integer-complexity-lab` | Doesn't exist yet. Everything is prepared locally. |
+| Repository `Polik9000/integer-complexity-lab` | Created **public** on 2026-11-25 with the lead's approval; `main` pushed. |
 | Credentials in the repository | None. No tokens, no e-mail addresses, no local user paths (checked by `git grep` before the first push). |
 
 ## Plan

@@ -18,8 +18,11 @@ A *claim* is a pair (m, j) meaning **G(m, j): ‖m‖ > j**, i.e. no expression 
 
 We use the following, all stated and proved in [`proof-exact-search.md`](proof-exact-search.md):
 - **Lemma 1 (Selfridge).** ‖m‖ ≥ λ(m) := min{ j : m³ ≤ 3^j }, and ‖m‖ ≥ 1.
-- **Lemma 2 (decomposition).** For m ≥ 2, every expression for m is a sum x + y (1 ≤ x ≤ m/2) or a product
-  d·e (2 ≤ d ≤ e, de = m) of two expressions. So ‖m‖ = min over these splits of ‖·‖ + ‖·‖.
+- **Lemma 2 (decomposition).** ~~For m ≥ 2, every expression for m is a sum x + y (1 ≤ x ≤ m/2) or a product
+  d·e (2 ≤ d ≤ e, de = m) of two expressions.~~ *(Corrected 2026-11-25 after the EXP-0005 math review: as written this is
+  false, e.g. (1+1)·1. The correct statement:)* For m ≥ 2, an expression for m with the fewest ones is a sum x + y
+  (1 ≤ x ≤ m/2) or a product d·e (2 ≤ d ≤ e, de = m) of two expressions, since a factor 1 could be dropped. So
+  ‖m‖ = min over these splits of ‖·‖ + ‖·‖, which is all Theorem C uses.
 - **Fact S (sum cut-off).** If ‖x‖ + ‖y‖ ≤ j then (xy)³ ≤ 3^j, by Lemma 1. On 1 ≤ x ≤ m/2 the product
   x(m − x) is increasing. So only the x before the first failure of (x(m − x))³ ≤ 3^j can matter.
 
@@ -73,6 +76,31 @@ A bug there can only make the certificate *fail to check*. It cannot make a fals
 - The last claim must be G(target, claim_gt). The `end` record guards against truncation.
 
 ## 5. Checker algorithm (normative)
+
+**Version 2 rules (added 2026-11-25 after the EXP-0004 audit, findings F1, F2, M1, F5–F7, and the EXP-0005 review).** These apply on top of the rules below.
+- **Integers only.** Every numeric field must be a JSON integer token. Floats (`1.0`, `1e0`), `NaN`, `Infinity` and booleans are
+  rejected. The cause was F1: a float factor prime equals the verified int prime in Python, and the float product can round a wrong
+  factorization to m, so true divisors were never enumerated and a false claim was accepted.
+- **Strict JSON.** Duplicate keys are rejected. Every line must be an object. Records must have exactly the fields of §4; the header
+  may also carry `generator`, and `table` may also carry `format`.
+- **Header.** `version` is the integer 1. `target` is a canonical decimal string (no sign, no leading zero). `claim_gt` is an integer
+  ≥ 0. `table.T` is an integer equal to the table length − 1. T must be ≥ 1. (LB is already ≥ 1 for every v > T, so this
+  rule is not needed for soundness; together with the table sanity rule below it means the table-free certificate trusts exactly
+  the byte c[1] = 1, pinned by the SHA-256.)
+- **Table sanity (necessary conditions only).** c[1] = 1, and c[v] ≤ 3·bitlen(v) − 2 for every v ≤ T (writing v in binary by
+  Horner's rule with 2 = 1+1 uses at most that many ones). This catches some corrupt tables. It does **not** show c[v] ≤ ‖v‖:
+  the table stays a trusted input, and the expected SHA-256 must come from an independently verified source, never from the
+  certificate header.
+- **Claims.** m ≥ 2, which Lemma 2 and Theorem C require (M1). Claims with j > 3·bitlen(m) are rejected early: such claims are false,
+  since ‖m‖ ≤ 3·bitlen(m) − 2, and rejecting them only avoids a long loop. Exponents satisfy 1 ≤ e ≤ bitlen(m).
+- **Resource guards (reject only, never accept).** A factor with (bitlen(p) − 1)·e ≥ bitlen(m) (so p^e > m) or a partial product
+  above m is rejected before more work is done. A claim whose factorization gives more than 2^20 divisors is rejected (no
+  genuine claim for m < 2^64 comes near this). Added after the EXP-0005 review found two short lines that made v2 run for
+  minutes or exhaust memory.
+- **Prime records.** For p ≥ 2^16 the q list is strictly increasing.
+- **End.** The last claim must be the target claim, with j ≥ claim_gt.
+- **Binding (F2).** The checker takes the *expected* target, claim_gt and table SHA-256 as inputs. It rejects the certificate unless the
+  header matches them, and it prints the SHA-256 in the verdict. Every error, including I/O and gzip errors, gives `REJECTED` and exit 1.
 
 State: `table` (bytes, length T + 1), `primes` (a set of verified primes), `proven` (a dict m → largest
 accepted j).

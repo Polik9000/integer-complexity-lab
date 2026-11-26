@@ -179,3 +179,30 @@ The lead asked for the follow-ups to the external audit (PR #5 stays a draft; no
   Disagreements D9–D16 recorded. The brief given to the Lean builder had wrong values for ‖2^24 − 1‖, ‖2^30 − 1‖ and ‖2^40 − 1‖
   (from memory; D16); the repository's EXP-0002 values (50, 63, 82) were confirmed.
 - R-0007 status unchanged (`COMPUTATIONALLY VERIFIED`); it gains evidence item (5).
+## 2026-11-25 (late evening): EXP-0005, lower-bound checker hardened (Claude Code)
+
+The lead asked for a separate PR that fixes the EXP-0004 audit findings in the checker, without touching
+PR #5 (the audit stays a draft and documents version 1 as it was).
+- `certificates/lower/check_lower.py` is now version 2. It accepts only exact `int` values (floats, `NaN`,
+  `Infinity` and booleans are rejected). It rejects duplicate keys and extra fields. It requires `m ≥ 2` and
+  `T ≥ 1`, and the last claim must be the target claim. The CLI must be given the expected target, claim and
+  table SHA-256, and the header must match them. Every failure is a `REJECTED` verdict. The mathematical checks are unchanged.
+- `tests/test_check_lower_hardening.py` has 72 tests: every exploit, a split-by-split battery, Pratt negatives
+  that depend on the prime record, 14 source mutants (all killed) and the committed corpus of 39 audit certificates.
+- Results (EXP-0005): all 38 known false or malformed certificates are rejected. Both genuine certificates for
+  ‖2^61−1‖ > 126 are accepted with the expected statement pinned. The table-free certificate with its
+  root raised to > 127 is rejected.
+- `experiments/EXP-0003-independent-verification/run_cert.sh` now passes the expected statement and compares the
+  verdict line exactly.
+- R-0007 keeps its status (`COMPUTATIONALLY VERIFIED`). Version 2 still needs an independent review.
+- (later the same night) An independent programming/security review of v2 found no accepted false certificate, but three unsound
+  mutants that survived the tests and two short DoS inputs. Fixed: four new mutants killed (18 in total), battery extended,
+  reject-only resource guards (p^e or partial product above m, more than 2^20 divisors), table sanity checks (c[1] = 1,
+  c[v] ≤ 3·bitlen(v) − 2). The spec's Lemma 2 sentence (false as worded, found by the math reviewer) is corrected. Both genuine
+  certificates are still accepted and the > 127 variant rejected. 135 tests pass.
+
+## 2026-11-26: PR #6 merged; PR #5 brought up to date (Claude Code)
+
+The lead merged PR #6 (checker v2). On the EXP-0004 branch, `main` was merged in; `tools/run_tablefree.sh` and
+`tests/test_exp0004_strict_checker.py` now call `check_lower.py` with the expected statement (v2 CLI), and the strict
+xfail that documented F1 became a normal test that passes. No other change; R-0007 unchanged.

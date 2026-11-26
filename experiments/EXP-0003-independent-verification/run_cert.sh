@@ -9,7 +9,11 @@ gcc -O2 -o "$WORK/complexity_table" algorithms/c/complexity_table.c
 echo "34dbc4da4f105ff7cc01942a6d7b491efba5bceee44bbad87fb0540e461b38f6  $WORK/table_1e8.bin" | sha256sum -c -
 python3 "$(dirname "$0")/gen_cert.py" "$WORK/table_1e8.bin" "$K" "$U" "$WORK/cert_k$K.jsonl.gz" \
   "$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
-python3 -I certificates/lower/check_lower.py "$WORK/cert_k$K.jsonl.gz" "$WORK/table_1e8.bin"
+TSHA=34dbc4da4f105ff7cc01942a6d7b491efba5bceee44bbad87fb0540e461b38f6; N=$(( (1 << K) - 1 )); [ "$K" -le 62 ]
+out=$(python3 -I certificates/lower/check_lower.py "$WORK/cert_k$K.jsonl.gz" "$WORK/table_1e8.bin" \
+      --target "$N" --claim-gt "$((U - 1))" --table-sha256 "$TSHA")
+echo "$out"
+[ "$out" = "ACCEPTED: ||$N|| > $((U - 1))  (table sha256 $TSHA)" ]   # exact verdict, not only the exit code
 # Optional table cross-check with He's independent table (needs run_he.sh, see README):
 #   bash experiments/EXP-0003-independent-verification/run_he.sh "$WORK/he" dump "$WORK/he_table_1e8.bin"
 #   cmp "$WORK/table_1e8.bin" "$WORK/he_table_1e8.bin"

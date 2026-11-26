@@ -16,6 +16,8 @@ python3 "$HERE/gen_table_free_cert.py" "$WORK/table_1e8.bin" 61 127 "$WORK/table
   "$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
 out1=$(python3 -I "$HERE/check_lower_strict.py" "$WORK/tablefree_k61.jsonl.gz" "$WORK/trivial_table.bin" $N 126 $TRIV_SHA)
 echo "$out1"; [[ "$out1" == "ACCEPTED: ||$N|| > 126"* ]]
-out2=$(python3 -I certificates/lower/check_lower.py "$WORK/tablefree_k61.jsonl.gz" "$WORK/trivial_table.bin")
-echo "$out2"; [[ "$out2" == "ACCEPTED: ||$N|| > 126" ]]
+# check_lower.py version 2 (EXP-0005, merged in PR #6) must be given the expected statement
+out2=$(python3 -I certificates/lower/check_lower.py "$WORK/tablefree_k61.jsonl.gz" "$WORK/trivial_table.bin" \
+  --target $N --claim-gt 126 --table-sha256 $TRIV_SHA)
+echo "$out2"; [[ "$out2" == "ACCEPTED: ||$N|| > 126  (table sha256 $TRIV_SHA)" ]]
 echo "BOTH CHECKERS ACCEPT (table-free)"

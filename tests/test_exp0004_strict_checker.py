@@ -1,9 +1,8 @@
 """EXP-0004: tests for the second (strict) lower-bound checker and for the float-factor finding F1.
 
 The strict checker lives in research/EXP-0004-independent-proof-audit/tools/. These tests do not change
-or weaken any existing test. The xfail test documents a known hole in certificates/lower/check_lower.py;
-it is strict, so it will start failing (XPASS) once the hole is fixed, and must then be turned into a
-normal test.
+or weaken any existing test. The former xfail test documented hole F1 in certificates/lower/check_lower.py version 1 (fixed in version 2);
+after PR #6 merged it was turned into a normal test, as planned.
 """
 import hashlib
 import json
@@ -76,7 +75,7 @@ def test_strict_accepts_table_free_small(tmp_path):
     cp, tp, sha = write(tmp_path, "tf", [0, 1], [header(300, c[300] - 1, 1, sha)] + body +
                         [json.dumps({"type": "end", "records": len(body)})])
     assert run(STRICT, cp, tp, 300, c[300] - 1, sha)[0] == 0
-    assert run(ORIG, cp, tp)[0] == 0
+    assert run(ORIG, cp, tp, "--target", 300, "--claim-gt", c[300] - 1, "--table-sha256", sha)[0] == 0
 
 
 def test_strict_rejects_overclaim_table_free(tmp_path):
@@ -87,7 +86,7 @@ def test_strict_rejects_overclaim_table_free(tmp_path):
     cp, tp, sha = write(tmp_path, "tf", [0, 1], [header(200, c[200], 1, sha)] + body +
                         [json.dumps({"type": "end", "records": len(body)})])
     assert run(STRICT, cp, tp, 200, c[200], sha)[0] == 1
-    assert run(ORIG, cp, tp)[0] == 1
+    assert run(ORIG, cp, tp, "--target", 200, "--claim-gt", c[200], "--table-sha256", sha)[0] == 1
 
 
 # F1: m = 4*3^33 has ||m|| <= 103; q*p = m - 1 with q = 83, p = 267906533327977 (both prime),
@@ -132,10 +131,12 @@ def test_strict_rejects_float_factor(tmp_path):
     assert code == 1 and "non-integer" in out
 
 
-@pytest.mark.xfail(strict=True, reason="EXP-0004 finding F1: check_lower.py accepts float factor primes")
+# Was a strict xfail documenting F1 in check_lower.py version 1. Version 2 (EXP-0005, PR #6, merged) fixes F1,
+# so the test now passes and the xfail marker is removed.
 def test_orig_rejects_float_factor(tmp_path):
-    cp, tp, _ = f1_cert(tmp_path)
-    assert run(ORIG, cp, tp)[0] == 1
+    cp, tp, sha = f1_cert(tmp_path)
+    code, out = run(ORIG, cp, tp, "--target", F1_M, "--claim-gt", F1_J, "--table-sha256", sha)
+    assert code == 1 and "non-integer" in out
 
 
 def test_strict_rejects_m_equal_one(tmp_path):

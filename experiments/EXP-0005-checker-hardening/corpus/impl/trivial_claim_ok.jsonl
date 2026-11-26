@@ -1,0 +1,3 @@
+{"type": "header", "version": 1, "target": "3486784401", "claim_gt": 1, "table": {"T": 2000, "sha256": "08a4522f04e1d611d1760cb5478d04ab682b2b9818f438683cfbd1e44e7d515b"}}
+{"type": "claim", "m": 3486784401, "j": 1, "f": [[3, 20]]}
+{"type": "end", "records": 1}

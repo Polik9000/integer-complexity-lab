@@ -1,0 +1,6 @@
+{"type": "header", "version": 1, "target": "1423119505038213888", "claim_gt": 115, "table": {"T": 1000, "sha256": "8794ede8be69ceccce33fc192b900d449da1ecfff3634f2a8072d317be248ba1", "format": "test"}, "generator": {"code": "adv"}}
+{"type": "prime", "p": 6709, "a": 0, "q": []}
+{"type": "prime", "p": 106060478837249, "a": 3, "q": [2, 13, 71, 137, 1129, 1451]}
+{"type": "prime", "p": 212120957674499, "a": 2, "q": [2, 106060478837249]}
+{"type":"claim","m":1423119505038213888,"j":115,"f":[[6709.0,1],[212120957674499.0,1]]}
+{"type": "end", "records": 4}

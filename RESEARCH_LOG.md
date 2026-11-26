@@ -131,6 +131,54 @@ on hold until the architecture is specified.
   external review of the checker and the proofs (RP-0002 is next) and no Lean version.
 - We did not run anything for larger k.
 
+## 2026-11-25 (evening): EXP-0004 independent proof audit (Claude Code + five subagents)
+
+The lead asked for an independent, skeptical audit of ‖2^61 − 1‖ = 127 and a Lean roadmap, with independent agents
+(math, implementation, adversarial, Lean, literature). The branch is `research/exp-0004-proof-audit`, based on `main`
+`b7d85c9` (PR #4 merged). Record: `research/EXP-0004-independent-proof-audit/`.
+- **Reproduction:** 54 tests pass. The EXP-0003 certificate regenerates byte-identically (except the header commit) and is
+  accepted (4 min 13 s).
+- **Mathematics:** no error found. Lemma 1, Fact S and Theorem C are now kernel-checked in Lean (PoC, no `sorry`), along with
+  ‖1023‖ = 22 end to end (R-0008, `FORMALLY VERIFIED`). Lemma 2 is worded loosely about factors of 1 (fixed in the audit's
+  write-up).
+- **Checker bug F1 (critical for the tool, no effect on the result):** `check_lower.py` accepts false claims when a factor prime
+  is a JSON float (demonstrated: ‖4·3^33‖ > 103). Three agents found it independently. The real certificates contain only
+  integers. The checker was left unchanged as instructed; a strict xfail test documents the hole. Also found: m = 1 with T ≤ 0
+  (M1), unbound verdict header fields (F2), and weak tests (mutants survive).
+- **New:** a second, strict checker, and a **table-free certificate** (3,068,111 records, 31 MB gzip, only ‖1‖ = 1 assumed). Both
+  checkers accept it. The 10⁸ table is no longer in the trust base.
+- **Literature:** no published exact ‖2^k − 1‖ for k ≥ 40 and ~~no formalization of integer complexity~~ found (the formalization part is **corrected** in the next entry). The upper bound 127
+  is not new (board PR #4; Iraids 2012 Thm 8). No priority claimed.
+- **Status:** R-0007 stays `COMPUTATIONALLY VERIFIED`, not `PROVEN`.
+- **Next (recommended):** harden `check_lower.py` (separate PR, needs the lead's OK); RP-0002; Lean M2/M3 (decide whether to use
+  Mathlib); then `native_decide` (M5) and a plan for a kernel-only run (M6, ≈ 1–3 CPU-days, estimated).
+
+## 2026-11-25 (late evening): EXP-0004 correction, prior Lean formalization (Claude Code)
+
+An external audit forwarded by the lead found a prior public Lean formalization of integer complexity:
+`BrettKnox/open-problems-lab`, `OpenProblemsLab/IntegerComplexity.lean`, commit `e899b51` (2026-08-20). It covers ‖n‖,
+Selfridge's bound, ‖3^k‖ = 3k and ‖2^n‖ = 2n for n ≤ 9, plus defect and stability. We inspected its source (we did not build it).
+Our claim "no formalization of integer complexity exists" is **retracted** in EXP-0004 (literature §6, README, disagreement
+log D8). What remains, as "not found" only: Theorem C, a verified certificate checker, exact values that need more than
+Selfridge's bound, and anything about 2^61 − 1. Process lesson recorded in `research/failed-approaches.md`.
+
+## 2026-11-25 (night): EXP-0004 follow-up: reproduction, Lean with Mathlib, second independent review (Claude Code)
+
+The lead asked for the follow-ups to the external audit (PR #5 stays a draft; nothing merged).
+- **Novelty, corrected again.** An independent literature reviewer found google-deepmind/formal-conjectures (Lean definition of
+  ‖n‖ and the split lemma, 2025-06-30) and facebookresearch/atlas-lean (Selfridge-type bounds, recursion, 2026). The primary agent
+  read both at the stated commits. Literature §7; no priority is claimed for anything.
+- **Checker hardening** is in a separate PR (#6, EXP-0005). This branch's certified checker is unchanged.
+- **Reproduction.** `tools/run_tablefree.sh` from a clean checkout: 3,068,111 records, body byte-identical to the first run (only the
+  header's commit field and gzip metadata differ); accepted by the version-1 checker, the strict checker and v2; the root raised
+  to > 127 is rejected by the strict checker and v2.
+- **Lean (`lean-cert/`, Mathlib v4.35.0).** Kernel-checked: checker soundness, divisor completeness, Pratt via `lucas_primality`,
+  and ‖2^20 − 1‖ > 41, ‖2^24 − 1‖ > 49. ‖2^61 − 1‖ > 126 is checked **via `native_decide`** (≈ 100 s), rebuilt independently from
+  the reproduced certificate. New R-0009 (`FORMALLY VERIFIED`) and R-0010 (`COMPUTATIONALLY VERIFIED`, native_decide).
+- **Second review round** (math, programming/security, Lean, literature): no false certificate accepted, no mathematical error.
+  Disagreements D9–D16 recorded. The brief given to the Lean builder had wrong values for ‖2^24 − 1‖, ‖2^30 − 1‖ and ‖2^40 − 1‖
+  (from memory; D16); the repository's EXP-0002 values (50, 63, 82) were confirmed.
+- R-0007 status unchanged (`COMPUTATIONALLY VERIFIED`); it gains evidence item (5).
 ## 2026-11-25 (late evening): EXP-0005, lower-bound checker hardened (Claude Code)
 
 The lead asked for a separate PR that fixes the EXP-0004 audit findings in the checker, without touching
@@ -152,3 +200,9 @@ PR #5 (the audit stays a draft and documents version 1 as it was).
   reject-only resource guards (p^e or partial product above m, more than 2^20 divisors), table sanity checks (c[1] = 1,
   c[v] ≤ 3·bitlen(v) − 2). The spec's Lemma 2 sentence (false as worded, found by the math reviewer) is corrected. Both genuine
   certificates are still accepted and the > 127 variant rejected. 135 tests pass.
+
+## 2026-11-26: PR #6 merged; PR #5 brought up to date (Claude Code)
+
+The lead merged PR #6 (checker v2). On the EXP-0004 branch, `main` was merged in; `tools/run_tablefree.sh` and
+`tests/test_exp0004_strict_checker.py` now call `check_lower.py` with the expected statement (v2 CLI), and the strict
+xfail that documented F1 became a normal test that passes. No other change; R-0007 unchanged.

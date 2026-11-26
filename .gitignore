@@ -28,3 +28,9 @@ credentials*.json
 .DS_Store
 .vscode/
 .idea/
+
+# lean-cert: generated certificate data (regenerate, see lean-cert/README.md) and build output
+lean-cert/.lake/
+lean-cert/data/k61/
+lean-cert/data/k61mut/
+lean-cert/data/mut40/

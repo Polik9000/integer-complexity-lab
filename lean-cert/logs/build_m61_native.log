@@ -1,0 +1,43 @@
+== lake build ICLCert.M61.Native
+⚠ [1627/1630] Replayed ICLCert.Sound
+warning: ICLCert/Sound.lean: imports `Mathlib.NumberTheory.LucasPrimality` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+warning: ICLCert/Sound.lean:293:6: Try this: intro k v' v h1 h2 e he
+
+Note: This linter can be disabled with `set_option linter.tacticAnalysis.introMerge false`
+✔ [1629/1630] Built IntegerComplexity.Certificates.M61 (920ms)
+ℹ [1630/1630] Built ICLCert.M61.Native (112s)
+info: ICLCert/M61/Native.lean:21:0: interpretation of ICLCert.M61.check_native._native.native_decide.decl_1_1 took 111s
+info: ICLCert/M61/Native.lean:32:0: 'ICLCert.checkCert_sound' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: ICLCert/M61/Native.lean:33:0: 'ICLCert.M61.check_native' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ ICLCert.M61.check_native._native.native_decide.ax_1_1]
+info: ICLCert/M61/Native.lean:34:0: 'ICLCert.M61.lowerBound_native' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ ICLCert.M61.check_native._native.native_decide.ax_1_1]
+info: ICLCert/M61/Native.lean:35:0: 'ICLCert.M61.hasComplexity_native' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ ICLCert.M61.check_native._native.native_decide.ax_1_1]
+info: stderr:
+cumulative profiling times:
+	attribute application 0.0178ms
+	compilation (IR) 0.0514ms
+	compilation (LCNF base) 0.993ms
+	compilation (LCNF impure) 0.228ms
+	compilation (LCNF mono) 0.253ms
+	declTypeLinter 5.68ms
+	elaboration 0.934ms
+	fix level params 0.0115ms
+	instantiate metavars 0.026ms
+	interpretation 111s
+	let-to-have transformation 0.0176ms
+	process pre-definitions 2.14ms
+	share common exprs 0.0722ms
+	tactic execution 2.56ms
+	tacticAnalysis 0.474ms
+	type checking 0.499ms
+	typeclass inference 7.39ms
+Build completed successfully (1630 jobs).
+MEASURE cmd='timeout 1800 lake build ICLCert.M61.Native' rc=0 wall=116.5s user=94.7s sys=1.4s maxrss=3267MB

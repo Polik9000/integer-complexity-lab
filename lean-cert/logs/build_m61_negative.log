@@ -1,0 +1,15 @@
+== lake build ICLCert.M61.Negative
+ℹ [6/6] Built ICLCert.M61.Negative (178s)
+info: ICLCert/M61/Negative.lean:14:0: interpretation of _private.ICLCert.M61.Negative.0._tmp._@.ICLCert.M61.Negative.450670096._hygCtx._hyg.25 took 87.5s
+info: ICLCert/M61/Negative.lean:17:0: interpretation of _private.ICLCert.M61.Negative.0._tmp._@.ICLCert.M61.Negative.2122195735._hygCtx._hyg.25 took 89s
+info: stderr:
+cumulative profiling times:
+	compilation (IR) 0.0735ms
+	compilation (LCNF base) 2.16ms
+	compilation (LCNF impure) 0.391ms
+	compilation (LCNF mono) 0.576ms
+	interpretation 176s
+	type checking 0.247ms
+	typeclass inference 8.47ms
+Build completed successfully (6 jobs).
+MEASURE cmd='timeout 1800 lake build ICLCert.M61.Negative' rc=0 wall=179.9s user=177.2s sys=1.6s maxrss=1617MB

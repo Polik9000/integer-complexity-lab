@@ -1,0 +1,28 @@
+== lake build ICLCert.Test.Mutants ICLCert.Test.Native40
+ℹ [5/6] Built ICLCert.Test.Native40 (1.7s)
+info: ICLCert/Test/Native40.lean:5:0: interpretation of t40._native.native_decide.decl_1_1 took 1.12s
+info: ICLCert/Test/Native40.lean:6:0: 't40' depends on axioms: [propext, Classical.choice, Quot.sound, t40._native.native_decide.ax_1_1]
+info: stderr:
+cumulative profiling times:
+	attribute application 0.0104ms
+	compilation (IR) 0.032ms
+	compilation (LCNF base) 0.571ms
+	compilation (LCNF impure) 0.166ms
+	compilation (LCNF mono) 0.503ms
+	elaboration 0.611ms
+	fix level params 0.0102ms
+	instantiate metavars 0.0119ms
+	interpretation 1.12s
+	let-to-have transformation 0.00847ms
+	process pre-definitions 0.544ms
+	share common exprs 0.0643ms
+	tactic execution 1.34ms
+	type checking 0.444ms
+	typeclass inference 0.755ms
+ℹ [6/6] Built ICLCert.Test.Mutants (9.2s)
+info: ICLCert/Test/Mutants.lean:27:0: true
+info: ICLCert/Test/Mutants.lean:31:0: false
+info: ICLCert/Test/Mutants.lean:53:0: false
+info: ICLCert/Test/Mutants.lean:57:0: true
+Build completed successfully (6 jobs).
+MEASURE cmd='lake build ICLCert.Test.Mutants ICLCert.Test.Native40' rc=0 wall=11.3s user=9.1s sys=0.7s maxrss=804MB

@@ -1,0 +1,95 @@
+== lake build ICLCert.Axioms
+⚠ [1627/1635] Replayed ICLCert.Sound
+warning: ICLCert/Sound.lean: imports `Mathlib.NumberTheory.LucasPrimality` from package `mathlib`, which is designed for use with the module system; consider adding `module` to the start of this file
+ℹ [1630/1635] Replayed ICLCert.M61.Native
+info: ICLCert/M61/Native.lean:21:0: interpretation of ICLCert.M61.check_native._native.native_decide.decl_1_1 took 108s
+info: ICLCert/M61/Native.lean:32:0: 'ICLCert.checkCert_sound' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: ICLCert/M61/Native.lean:33:0: 'ICLCert.M61.check_native' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ ICLCert.M61.check_native._native.native_decide.ax_1_1]
+info: ICLCert/M61/Native.lean:34:0: 'ICLCert.M61.lowerBound_native' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ ICLCert.M61.check_native._native.native_decide.ax_1_1]
+info: ICLCert/M61/Native.lean:35:0: 'ICLCert.M61.hasComplexity_native' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ ICLCert.M61.check_native._native.native_decide.ax_1_1]
+info: stderr:
+cumulative profiling times:
+	attribute application 0.0185ms
+	compilation (IR) 0.0482ms
+	compilation (LCNF base) 0.667ms
+	compilation (LCNF impure) 0.15ms
+	compilation (LCNF mono) 0.162ms
+	declTypeLinter 0.365ms
+	elaboration 1.5ms
+	fix level params 0.0306ms
+	instantiate metavars 0.0617ms
+	interpretation 108s
+	let-to-have transformation 0.0141ms
+	process pre-definitions 0.254ms
+	share common exprs 0.0612ms
+	tactic execution 3.28ms
+	tacticAnalysis 8.98ms
+	type checking 1.21ms
+	typeclass inference 8.91ms
+✔ [1631/1635] Built ICLCert.Data.K20 (11s)
+✔ [1632/1635] Built ICLCert.Data.K24 (14s)
+ℹ [1633/1635] Built ICLCert.Test.Kernel20 (30s)
+info: ICLCert/Test/Kernel20.lean:6:0: type checking took 27.3s
+info: ICLCert/Test/Kernel20.lean:8:0: 'k20_lb' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: stderr:
+cumulative profiling times:
+	attribute application 0.0181ms
+	declTypeLinter 3.16ms
+	elaboration 12.6ms
+	fix level params 0.0313ms
+	instantiate metavars 0.068ms
+	let-to-have transformation 0.0165ms
+	process pre-definitions 6.4ms
+	share common exprs 0.0438ms
+	tactic execution 0.965ms
+	tacticAnalysis 0.762ms
+	type checking 27.3s
+	typeclass inference 9.96ms
+ℹ [1634/1635] Built ICLCert.Test.Kernel24 (48s)
+info: ICLCert/Test/Kernel24.lean:6:0: type checking took 44.8s
+info: ICLCert/Test/Kernel24.lean:8:0: 'k24_lb' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: stderr:
+cumulative profiling times:
+	attribute application 0.0159ms
+	declTypeLinter 4.18ms
+	elaboration 2.96ms
+	fix level params 0.0119ms
+	instantiate metavars 0.0374ms
+	let-to-have transformation 0.0166ms
+	process pre-definitions 0.244ms
+	share common exprs 0.044ms
+	tactic execution 3.39ms
+	tacticAnalysis 0.574ms
+	type checking 44.8s
+	typeclass inference 15.5ms
+ℹ [1635/1635] Built ICLCert.Axioms (1.9s)
+info: ICLCert/Axioms.lean:7:0: 'ICLCert.checkCert_sound' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: ICLCert/Axioms.lean:8:0: 'ICLCert.mem_divisorsOf' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: ICLCert/Axioms.lean:9:0: 'ICLCert.prattOK_sound' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: ICLCert/Axioms.lean:10:0: 'ICLCert.claimOK_sound' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: ICLCert/Axioms.lean:11:0: 'ICLCert.M61.check_native' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ ICLCert.M61.check_native._native.native_decide.ax_1_1]
+info: ICLCert/Axioms.lean:12:0: 'ICLCert.M61.lowerBound_native' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ ICLCert.M61.check_native._native.native_decide.ax_1_1]
+info: ICLCert/Axioms.lean:13:0: 'ICLCert.M61.hasComplexity_native' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ ICLCert.M61.check_native._native.native_decide.ax_1_1]
+info: ICLCert/Axioms.lean:14:0: 'IntegerComplexity.Certificates.M61.upperBound_c_m61_ub127_icl_peel' does not depend on any axioms
+info: ICLCert/Axioms.lean:15:0: 'k20_lb' depends on axioms: [propext, Classical.choice, Quot.sound]
+info: ICLCert/Axioms.lean:16:0: 'k24_lb' depends on axioms: [propext, Classical.choice, Quot.sound]
+Build completed successfully (1635 jobs).
+MEASURE cmd='timeout 1800 lake build ICLCert.Axioms' rc=0 wall=67.1s user=65.5s sys=4.2s maxrss=5703MB
